@@ -246,7 +246,7 @@ class HomePageState extends State<HomePage> {
                         print("object");
                       }
                       Future.delayed(Duration.zero, () {
-                        context.go(Routes.buyTickets);
+                        context.push(Routes.buyTickets);
                       });
                       //dialogShown = false;
                       //login(_emailText.text.trim().toString(), _passwordText.text.trim().toString());

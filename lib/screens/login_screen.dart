@@ -439,7 +439,7 @@ class LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Flexible(
-                          child: Text("Login",
+                          child: Text("Login".allInCaps,
                               style: textStyle(
                                   Colors.white, 16, 0.5, FontWeight.w400)),
                         ),

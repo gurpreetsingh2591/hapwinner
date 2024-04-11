@@ -185,7 +185,7 @@ List<String> photos = ["https://kmschool.observer.school/uploads/Sustainability-
   "https://kmschool.observer.school/uploads/earthmap.png",
   "https://kmschool.observer.school/uploads/white-chrysler-300-tbkd9gtlc4x9vbor.jpg"];
 
-List<String> subjectList = ["Select Subject","Language Arts","Mathematics","French","punjabi","Sensorial"];
+List<String> tickets = ["5656457","1526376","8766789","4567891","8767654","1235466","2312221","6556878","1235466","1237677"];
 
 
 /* launchUrl(Uri url) async {
@@ -322,8 +322,10 @@ final kEditTextDecoration = BoxDecoration(
 const kTopBarDecoration = BoxDecoration(
   color: appBaseColor,
 );
-const kPGBgDecoration = BoxDecoration(
-  color: appOrangeColor,
+final kTicketDecoration = BoxDecoration(
+  color: kBaseColor,
+  borderRadius: BorderRadius.circular(15),
+
 );
 const kPIBgDecoration = BoxDecoration(
   color: appHpGreen,

@@ -20,14 +20,14 @@ import '../utils/themes/colors.dart';
 import '../widgets/DrawerWidget.dart';
 import '../widgets/TopBarWidget.dart';
 
-class BuyTicketsPage extends StatefulWidget {
-  const BuyTicketsPage({Key? key}) : super(key: key);
+class MyCartPage extends StatefulWidget {
+  const MyCartPage({Key? key}) : super(key: key);
 
   @override
-  BuyTicketsState createState() => BuyTicketsState();
+  MyCartState createState() => MyCartState();
 }
 
-class BuyTicketsState extends State<BuyTicketsPage> {
+class MyCartState extends State<MyCartPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   bool isLoading = false;
@@ -197,7 +197,7 @@ class BuyTicketsState extends State<BuyTicketsPage> {
               width: mq.width,
               alignment: Alignment.center,
               decoration: kTopBarDecoration,
-              child: const Text("Buy Tickets")),
+              child: const Text("My Cart")),
           Container(
             margin: const EdgeInsets.only(top: 50),
             child: ListView(
@@ -225,34 +225,14 @@ class BuyTicketsState extends State<BuyTicketsPage> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                "Quick Buy Tickets",
-                style: TextStyle(fontSize: 16, color: Colors.white),
-              ),
-              10.height,
-              CommonTextField(
-                controller: _emailText,
-                hintText: "Enter Number of tickets",
-                text: "",
-                isFocused: false,
-                textColor: Colors.black,
-                focus: _emailFocus,
-                textSize: 16,
-                weight: FontWeight.w400,
-                hintColor: Colors.black26,
-                error: false,
-                wrongError: false,
-                decoration: kEditTextDecoration,
-                padding: 0,
-              ),
-              15.height,
-              const Center(
-                  child: Text("------------ OR -------------",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 32, color: Colors.white))),
-              15.height,
-              const Text("Choose your tickets",
-                  style: TextStyle(fontSize: 16, color: Colors.white)),
+              const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Your tickets",
+                        style: TextStyle(fontSize: 16, color: Colors.white)),
+                    Text("Clear all",
+                        style: TextStyle(fontSize: 16, color: Colors.white)),
+                  ]),
               15.height,
               Column(
                 children: [
@@ -268,8 +248,34 @@ class BuyTicketsState extends State<BuyTicketsPage> {
                     },
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2, childAspectRatio: 4 / 1),
-                  )
+                            crossAxisCount: 3, childAspectRatio: 3 / 1),
+                  ),
+                ],
+              ),
+              30.height,
+               Column(
+                children: [
+                  const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Single Ticket price",
+                            style:
+                                TextStyle(fontSize: 16, color: Colors.white)),
+                        Text("\$4.90",
+                            style:
+                                TextStyle(fontSize: 16, color: Colors.white)),
+                      ]),
+                  10.height,
+                  const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Total Ticket price\n(10 X 4.90)",
+                            style:
+                            TextStyle(fontSize: 16, color: Colors.white)),
+                        Text("\$49.00",
+                            style:
+                            TextStyle(fontSize: 16, color: Colors.white)),
+                      ])
                 ],
               ),
               40.height,
@@ -281,7 +287,7 @@ class BuyTicketsState extends State<BuyTicketsPage> {
                 child: ElevatedButton(
                     onPressed: () {
                       Future.delayed(Duration.zero, () {
-                        context.push(Routes.myCart);
+                        context.go(Routes.mainHome);
                       });
                       //dialogShown = false;
                       //login(_emailText.text.trim().toString(), _passwordText.text.trim().toString());
@@ -293,7 +299,7 @@ class BuyTicketsState extends State<BuyTicketsPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Flexible(
-                          child: Text("Proceed".allInCaps,
+                          child: Text("Buy Tickets".allInCaps,
                               style: textStyle(
                                   Colors.white, 12, 0.5, FontWeight.w400)),
                         ),

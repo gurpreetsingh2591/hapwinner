@@ -235,7 +235,7 @@ class DrawerWidget extends StatelessWidget {
               ),
               onTap: () {
                 Navigator.pop(context);
-                context.pushReplacement(Routes.messageFromSchool);
+                context.pushReplacement(Routes.myCart);
               },
             ),
           ),
