@@ -49,6 +49,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
+  bottom_bar_matu:
+    dependency: "direct main"
+    description:
+      name: bottom_bar_matu
+      sha256: "6e5b5b17ca19fb6f950a067b201dcb684d26a8b31f579795cbb28629ca64adbd"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.4.0"
   build:
     dependency: transitive
     description:
