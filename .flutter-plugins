@@ -1,5 +1,10 @@
 # This is a generated file; do not edit or check into version control.
 device_info_plus=/Users/gurpreetsmacbook/.pub-cache/hosted/pub.dev/device_info_plus-9.1.2/
+flutter_inappwebview=/Users/gurpreetsmacbook/.pub-cache/hosted/pub.dev/flutter_inappwebview-6.0.0/
+flutter_inappwebview_android=/Users/gurpreetsmacbook/.pub-cache/hosted/pub.dev/flutter_inappwebview_android-1.0.13/
+flutter_inappwebview_ios=/Users/gurpreetsmacbook/.pub-cache/hosted/pub.dev/flutter_inappwebview_ios-1.0.13/
+flutter_inappwebview_macos=/Users/gurpreetsmacbook/.pub-cache/hosted/pub.dev/flutter_inappwebview_macos-1.0.11/
+flutter_inappwebview_web=/Users/gurpreetsmacbook/.pub-cache/hosted/pub.dev/flutter_inappwebview_web-1.0.8/
 fluttertoast=/Users/gurpreetsmacbook/.pub-cache/hosted/pub.dev/fluttertoast-8.2.4/
 package_info_plus=/Users/gurpreetsmacbook/.pub-cache/hosted/pub.dev/package_info_plus-5.0.1/
 path_provider=/Users/gurpreetsmacbook/.pub-cache/hosted/pub.dev/path_provider-2.1.2/

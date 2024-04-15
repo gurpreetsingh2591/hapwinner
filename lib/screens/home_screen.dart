@@ -7,19 +7,24 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hap_winner_project/screens/profile_screen.dart';
 import 'package:hap_winner_project/utils/extensions/extensions.dart';
+import 'package:hap_winner_project/widgets/TestimonialWidget.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../app/router.dart';
 
 import '../bloc/logic_bloc/meeting_bloc.dart';
 import '../bloc/state/meeting_state.dart';
+import '../widgets/ChildItemWidget.dart';
 import '../widgets/ColoredSafeArea.dart';
 import '../utils/constant.dart';
 import '../utils/shared_prefs.dart';
 import '../utils/themes/colors.dart';
 import '../widgets/DrawerWidget.dart';
 import '../widgets/TopBarWidget.dart';
+import '../widgets/WinnerWidget.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -41,6 +46,13 @@ class HomePageState extends State<HomePage> {
   bool index2 = false;
   bool index3 = false;
   bool index4 = false;
+  final YoutubePlayerController _controller = YoutubePlayerController(
+    initialVideoId: 'U8CTJ23AdHE',
+    flags: const YoutubePlayerFlags(
+      autoPlay: true,
+      mute: true,
+    ),
+  );
 
   @override
   void initState() {
@@ -74,63 +86,131 @@ class HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context).size;
     return BlocProvider(
-      create: (context) => meetingBloc,
-      child: Scaffold(
-        key: _scaffoldKey,
-        body: PageView(
-          controller: controller,
-          children: <Widget>[
-            Center(
-              child: ColoredSafeArea(
-                child: BlocBuilder<MeetingBloc, MeetingState>(
-                  builder: (context, state) {
-                    if (state is LoadingState) {
-                      return buildHomeContainer(context, mq);
-                    } else if (state is GetOfficeSlotState) {
-                      return buildHomeContainer(context, mq);
-                    } else if (state is FailureState) {
-                      return Center(
-                        child: Text('Error: ${state.error}'),
-                      );
-                    }
-                    return LayoutBuilder(
-                      builder:
-                          (BuildContext context, BoxConstraints constraints) {
-                        if (constraints.maxWidth < 757) {
-                          return buildHomeContainer(context, mq);
-                        } else {
-                          return buildHomeContainer(context, mq);
-                        }
-                      },
-                    );
+        create: (context) => meetingBloc,
+        child: Scaffold(
+            key: _scaffoldKey,
+            body: Stack(children: [
+              Container(
+                margin: const EdgeInsets.only(bottom: 80),
+                child: PageView(
+                  controller: controller,
+                  onPageChanged: (num) {
+                    setState(() {
+                      if (num == 0) {
+                        index1 = true;
+                        index2 = false;
+                        index3 = false;
+                        index4 = false;
+                      } else if (num == 1) {
+                        index1 = false;
+                        index2 = true;
+                        index3 = false;
+                        index4 = false;
+                      }
+                      if (num == 2) {
+                        index1 = false;
+                        index2 = false;
+                        index3 = true;
+                        index4 = false;
+                      }
+                      if (num == 3) {
+                        index1 = false;
+                        index2 = false;
+                        index3 = false;
+                        index4 = true;
+                      }
+                    });
                   },
+                  children: <Widget>[
+                    Center(
+                      child: ColoredSafeArea(
+                        child: BlocBuilder<MeetingBloc, MeetingState>(
+                          builder: (context, state) {
+                            if (state is LoadingState) {
+                              return buildHomeContainer(context, mq, true);
+                            } else if (state is GetOfficeSlotState) {
+                              return buildHomeContainer(context, mq, false);
+                            } else if (state is FailureState) {
+                              return Center(
+                                child: Text('Error: ${state.error}'),
+                              );
+                            }
+                            return buildHomeContainer(context, mq, false);
+                          },
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: ColoredSafeArea(
+                        child: BlocBuilder<MeetingBloc, MeetingState>(
+                          builder: (context, state) {
+                            if (state is LoadingState) {
+                              return buildWinnerContainer(context, mq, true);
+                            } else if (state is GetOfficeSlotState) {
+                              return buildWinnerContainer(context, mq, false);
+                            } else if (state is FailureState) {
+                              return Center(
+                                child: Text('Error: ${state.error}'),
+                              );
+                            }
+                            return buildWinnerContainer(context, mq, false);
+                          },
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: ColoredSafeArea(
+                        child: BlocBuilder<MeetingBloc, MeetingState>(
+                          builder: (context, state) {
+                            if (state is LoadingState) {
+                              return buildTestimonialContainer(
+                                  context, mq, true);
+                            } else if (state is GetOfficeSlotState) {
+                              return buildTestimonialContainer(
+                                  context, mq, false);
+                            } else if (state is FailureState) {
+                              return Center(
+                                child: Text('Error: ${state.error}'),
+                              );
+                            }
+                            return buildTestimonialContainer(
+                                context, mq, false);
+                          },
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: ColoredSafeArea(
+                        child: BlocBuilder<MeetingBloc, MeetingState>(
+                          builder: (context, state) {
+                            if (state is LoadingState) {
+                              return buildProfileContainer(context, mq, true);
+                            } else if (state is GetOfficeSlotState) {
+                              return buildProfileContainer(context, mq, false);
+                            } else if (state is FailureState) {
+                              return Center(
+                                child: Text('Error: ${state.error}'),
+                              );
+                            }
+                            return buildProfileContainer(context, mq, false);
+                          },
+                        ),
+                      ),
+                    )
+                  ],
                 ),
               ),
-            ),
-            Center(
-              child: buildTestimonialContainer(context, mq),
-            ),
-            Center(
-              child: buildWinnerContainer(context, mq),
-            ),
-            Center(
-              child: buildProfileContainer(context, mq),
-            ),
-          ],
-        ),
-      ),
-    );
+              Positioned(bottom: 0, child: bottomBar(mq)),
+
+            ])));
   }
 
   Widget bottomBar(Size mq) {
-    return SizedBox(
+    return Container(
+      decoration: kBlackButtonBoxDecoration,
         width: mq.width,
-        child: Card(
-            borderOnForeground: true,
-            color: Colors.white,
-            elevation: 5,
-            shadowColor: Colors.white,
-            child: Container(
+        child: Container(
+
                 padding: const EdgeInsets.symmetric(horizontal: 15),
                 margin: const EdgeInsets.all(15),
                 child: Row(
@@ -143,6 +223,7 @@ class HomePageState extends State<HomePage> {
                           index2 = false;
                           index3 = false;
                           index4 = false;
+                          controller.jumpToPage(0);
                         });
                       },
                       child: Container(
@@ -152,7 +233,7 @@ class HomePageState extends State<HomePage> {
                             index1
                                 ? "assets/home_color.png"
                                 : "assets/home_simple.png",
-                            scale: 4,
+                            scale: 5,
                           ),
                           5.height,
                           Text(
@@ -161,7 +242,7 @@ class HomePageState extends State<HomePage> {
                                 index1
                                     ? kSelectedTextColor
                                     : kUnselectedTextColor,
-                                16,
+                                12,
                                 0,
                                 FontWeight.normal),
                           )
@@ -175,6 +256,7 @@ class HomePageState extends State<HomePage> {
                           index2 = true;
                           index3 = false;
                           index4 = false;
+                          controller.jumpToPage(1);
                         });
                       },
                       child: Container(
@@ -184,7 +266,7 @@ class HomePageState extends State<HomePage> {
                             index2
                                 ? "assets/winner_color.png"
                                 : "assets/winner_simple.png",
-                            scale: 4,
+                            scale: 5,
                           ),
                           5.height,
                           Text(
@@ -193,7 +275,7 @@ class HomePageState extends State<HomePage> {
                                 index2
                                     ? kSelectedTextColor
                                     : kUnselectedTextColor,
-                                16,
+                                12,
                                 0,
                                 FontWeight.normal),
                           )
@@ -203,6 +285,8 @@ class HomePageState extends State<HomePage> {
                     InkWell(
                       onTap: () {
                         setState(() {
+                          controller.jumpToPage(2);
+
                           index1 = false;
                           index2 = false;
                           index3 = true;
@@ -216,7 +300,7 @@ class HomePageState extends State<HomePage> {
                             index3
                                 ? "assets/testimonial_color.png"
                                 : "assets/testimonial_simple.png",
-                            scale: 4,
+                            scale: 5,
                           ),
                           5.height,
                           Text(
@@ -225,7 +309,7 @@ class HomePageState extends State<HomePage> {
                                 index3
                                     ? kSelectedTextColor
                                     : kUnselectedTextColor,
-                                16,
+                                12,
                                 0,
                                 FontWeight.normal),
                           )
@@ -235,6 +319,7 @@ class HomePageState extends State<HomePage> {
                     InkWell(
                       onTap: () {
                         setState(() {
+                          controller.jumpToPage(3);
                           index1 = false;
                           index2 = false;
                           index3 = false;
@@ -248,7 +333,7 @@ class HomePageState extends State<HomePage> {
                             index4
                                 ? "assets/profile_color.png"
                                 : "assets/profile.png",
-                            scale: 4,
+                            scale: 5,
                           ),
                           5.height,
                           Text(
@@ -257,7 +342,7 @@ class HomePageState extends State<HomePage> {
                                 index4
                                     ? kSelectedTextColor
                                     : kUnselectedTextColor,
-                                16,
+                                12,
                                 0,
                                 FontWeight.normal),
                           )
@@ -265,55 +350,140 @@ class HomePageState extends State<HomePage> {
                       ),
                     )
                   ],
-                ))));
+                )));
   }
 
-  Widget buildHomeContainer(BuildContext context, Size mq) {
+  Widget buildHomeContainer(BuildContext context, Size mq, bool loading) {
     return Container(
         constraints: const BoxConstraints.expand(),
         child: Stack(children: [
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  height: 50,
-                  width: mq.width,
-                  alignment: Alignment.center,
-                  decoration: kTopBarDecoration,
-                  child: const Text("Home")),
-              ListView(
-                shrinkWrap: true,
-                primary: false,
-                children: [
-                  buildContestContainer(context, mq),
-                ],
-              ),
-            ],
-          ),
           Container(
-            height: 500,
-            margin: const EdgeInsets.only(bottom: 20, top: 80),
-            child: const Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              height: 60,
+              width: mq.width,
+              alignment: Alignment.center,
+              decoration: kTopBarDecoration,
+              child: TopBarWidget(
+                onTapLeft: () {},
+                leftIcon: 'assets/back_arrow.png',
+                title: 'Home',
+                leftVisibility: false,
+                screen: 'buy_ticket',
+              )),
+          Container(
+            margin: const EdgeInsets.only(top: 60),
+            child: ListView(
+              shrinkWrap: true,
+              primary: false,
               children: [
-                Center(
-                    child: SpinKitFadingCircle(
-                  color: kLightGray,
-                  size: 80.0,
-                ))
+                buildContestContainer(context, mq),
               ],
             ),
           ),
-          Positioned(bottom: 0, child: bottomBar(mq)),
+          Visibility(
+            visible: loading,
+            child: Container(
+              height: 500,
+              margin: const EdgeInsets.only(bottom: 20, top: 80),
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Center(
+                      child: SpinKitFadingCircle(
+                    color: kLightGray,
+                    size: 80.0,
+                  ))
+                ],
+              ),
+            ),
+          ),
         ]));
   }
 
-  Widget buildWinnerContainer(BuildContext context, Size mq) {
+  Widget buildWinnerContainer(BuildContext context, Size mq, bool loading) {
     return Container(
+        decoration: kTopBarDecoration,
+        constraints: const BoxConstraints.expand(),
+        child: Stack(
+          children: [
+            Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                height: 60,
+                width: mq.width,
+                alignment: Alignment.center,
+                decoration: kTopBarDecoration,
+                child: TopBarWidget(
+                  onTapLeft: () {},
+                  leftIcon: 'assets/back_arrow.png',
+                  title: 'Winners',
+                  leftVisibility: false,
+                  screen: 'buy_ticket',
+                )),
+            Container(
+              padding: const EdgeInsets.all(15),
+              margin: const EdgeInsets.only(top: 50),
+              child: ListView.builder(
+                shrinkWrap: true,
+                primary: false,
+                itemCount: 5,
+                itemBuilder: (BuildContext context, int index) {
+                  return WinnerWidget(
+                    onTap: () {},
+                    decoration: kAllCornerBoxDecoration,
+                  );
+                },
+              ),
+            ),
+          ],
+        ));
+  }
+
+  Widget buildTestimonialContainer(
+      BuildContext context, Size mq, bool loading) {
+    return Container(
+      constraints: const BoxConstraints.expand(),
+      child: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            height: 60,
+            width: mq.width,
+            alignment: Alignment.center,
+            decoration: kTopBarDecoration,
+            child: TopBarWidget(
+              onTapLeft: () {},
+              leftIcon: 'assets/back_arrow.png',
+              title: 'Testimonials',
+              leftVisibility: false,
+              screen: 'buy_ticket',
+            ),
+          ),
+          Container(
+              margin: const EdgeInsets.only(top: 60, left: 20, right: 20),
+              child: ListView.builder(
+                shrinkWrap: true,
+                primary: false,
+                itemCount: 5,
+                itemBuilder: (BuildContext context, int index) {
+                  return TestimonialWidget(
+                    onTap: () {},
+                    decoration: kAllCornerBoxDecoration,
+                    name: 'Katrine',
+                    testimonial:
+                        'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
+                    image: 'assets/testimonial.png',
+                  );
+                },
+              )),
+        ],
+      ),
+    );
+  }
+
+  Widget buildProfileContainer(BuildContext context, Size mq, bool loading) {
+    return Container(
+        decoration: kTopBarDecoration,
         constraints: const BoxConstraints.expand(),
         child: Stack(children: [
           Column(
@@ -322,80 +492,205 @@ class HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  height: 50,
-                  width: mq.width,
-                  alignment: Alignment.center,
-                  decoration: kTopBarDecoration,
-                  child: const Text("Winners")),
-              ListView(
-                shrinkWrap: true,
-                primary: false,
-                children: [
-                  buildContestContainer(context, mq),
-                ],
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                height: 60,
+                width: mq.width,
+                alignment: Alignment.center,
+                decoration: kTopBarDecoration,
+                child: TopBarWidget(
+                  onTapLeft: () {},
+                  leftIcon: 'assets/back_arrow.png',
+                  title: 'Profile',
+                  leftVisibility: false,
+                  screen: 'buy_ticket',
+                ),
               ),
-            ],
-          ),
-          Positioned(bottom: 0, child: bottomBar(mq)),
-        ]));
-  }
-
-  Widget buildTestimonialContainer(BuildContext context, Size mq) {
-    return Container(
-        constraints: const BoxConstraints.expand(),
-        child: Stack(children: [
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
               Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  height: 50,
-                  width: mq.width,
-                  alignment: Alignment.center,
-                  decoration: kTopBarDecoration,
-                  child: const Text("Testimonials")),
-              ListView(
-                shrinkWrap: true,
-                primary: false,
-                children: [
-                  buildContestContainer(context, mq),
-                ],
-              ),
-            ],
-          ),
-          Positioned(bottom: 0, child: bottomBar(mq)),
-        ]));
-  }
+                padding: const EdgeInsets.all(20),
+                child: ListView(
+                  shrinkWrap: true,
+                  primary: false,
+                  children: [
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Personal Details",
+                            style:
+                                textStyle(Colors.white, 22, 0, FontWeight.w500),
+                          ),
+                          const Icon(
+                            Icons.edit,
+                            size: 18,
+                          ),
+                        ]),
+                    20.height,
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Name  :",
+                            style:
+                                textStyle(Colors.white, 16, 0, FontWeight.w400),
+                          ),
+                          10.width,
+                          Text(
+                            "John",
+                            style:
+                                textStyle(Colors.white, 16, 0, FontWeight.w400),
+                          ),
+                        ]),
+                    5.height,
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Date of birth  :",
+                            style:
+                                textStyle(Colors.white, 16, 0, FontWeight.w400),
+                          ),
+                          10.width,
+                          Text(
+                            "15-04-1987",
+                            style:
+                                textStyle(Colors.white, 16, 0, FontWeight.w400),
+                          ),
+                        ]),
+                    5.height,
 
-  Widget buildProfileContainer(BuildContext context, Size mq) {
-    return Container(
-        constraints: const BoxConstraints.expand(),
-        child: Stack(children: [
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  height: 50,
-                  width: mq.width,
-                  alignment: Alignment.center,
-                  decoration: kTopBarDecoration,
-                  child: const Text("Profile")),
-              ListView(
-                shrinkWrap: true,
-                primary: false,
-                children: [
-                  buildContestContainer(context, mq),
-                ],
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Email  :",
+                            style:
+                                textStyle(Colors.white, 16, 0, FontWeight.w400),
+                          ),
+                          10.width,
+                          Text(
+                            "john@yopmail.com",
+                            style:
+                                textStyle(Colors.white, 16, 0, FontWeight.w400),
+                          ),
+                        ]),
+                    5.height,
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Phone  :",
+                            style:
+                                textStyle(Colors.white, 16, 0, FontWeight.w400),
+                          ),
+                          10.width,
+                          Text(
+                            "+167767777",
+                            style:
+                                textStyle(Colors.white, 16, 0, FontWeight.w400),
+                          ),
+                        ]),
+                    5.height,
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Address  :",
+                            style:
+                            textStyle(Colors.white, 16, 0, FontWeight.w400),
+                          ),
+                          10.width,
+                          Text(
+                            "8198 Fieldstone, WI 54601",
+                            style:
+                            textStyle(Colors.white, 16, 0, FontWeight.w400),
+                          ),
+                        ]),
+                    15.height,
+                    const Divider(thickness: 1,color: Colors.white,),
+                    15.height,
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Account Settings",
+                            style:
+                            textStyle(Colors.white, 22, 0, FontWeight.w500),
+                          ),
+                          const Icon(
+                            Icons.edit,
+                            size: 18,
+                          ),
+                        ]),
+                    15.height,
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Language  :",
+                            style:
+                            textStyle(Colors.white, 16, 0, FontWeight.w400),
+                          ),
+                          10.width,
+                          Text(
+                            "English (United States)",
+                            style:
+                            textStyle(Colors.white, 16, 0, FontWeight.w400),
+                          ),
+                        ]),
+                    5.height,
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Time Zone  :",
+                            style:
+                            textStyle(Colors.white, 16, 0, FontWeight.w400),
+                          ),
+                          10.width,
+                          Text(
+                            "(GMT-06:00) Central America",
+                            style:
+                            textStyle(Colors.white, 16, 0, FontWeight.w400),
+                          ),
+                        ]),
+                    5.height,
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Status  :",
+                            style:
+                            textStyle(Colors.white, 16, 0, FontWeight.w400),
+                          ),
+                          10.width,
+                          Text(
+                            "Active",
+                            style:
+                            textStyle(Colors.white, 16, 0, FontWeight.w400),
+                          ),
+                        ]),
+                    15.height,
+                    const Divider(thickness: 1,color: Colors.white,),
+                    15.height,
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Change Password",
+                            style:
+                            textStyle(Colors.white, 22, 0, FontWeight.w500),
+                          ),
+                          const Icon(
+                            Icons.edit,
+                            size: 18,
+                          ),
+                        ]),
+                    15.height,
+                  ],
+                ),
               ),
             ],
           ),
-          Positioned(bottom: 0, child: bottomBar(mq)),
         ]));
   }
 
@@ -405,10 +700,9 @@ class HomePageState extends State<HomePage> {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          height: 150,
+        SizedBox(
           width: mq.width,
-          color: kBaseColor,
+          child: Image.asset("assets/home_top_image.png"),
         ),
         Container(
           margin: const EdgeInsets.all(20),
@@ -429,7 +723,7 @@ class HomePageState extends State<HomePage> {
               Container(
                 margin: const EdgeInsets.only(left: 50, right: 50),
                 decoration: kButtonBoxDecorationEmpty,
-                height: 30,
+                height: 40,
                 alignment: Alignment.center,
                 child: ElevatedButton(
                     onPressed: () {
@@ -534,6 +828,56 @@ class HomePageState extends State<HomePage> {
                           style: TextStyle(fontSize: 12))),
                 ],
               ),
+            ],
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
+          decoration: kButtonBgDecoration,
+          child: Column(
+            children: [
+              const Text(
+                "Upcoming Contest",
+                style: TextStyle(color: Colors.white),
+              ),
+              10.height,
+              Image.asset(
+                "assets/balls.png",
+                scale: 4,
+              ),
+              15.height,
+              Container(
+                margin: const EdgeInsets.only(left: 30, right: 30),
+                decoration: kButtonBoxDecorationEmpty,
+                height: 40,
+                alignment: Alignment.center,
+                child: ElevatedButton(
+                    onPressed: () {
+                      if (kDebugMode) {
+                        print("object");
+                      }
+                      Future.delayed(Duration.zero, () {
+                        context.push(Routes.upcomingContest);
+                      });
+                      //dialogShown = false;
+                      //login(_emailText.text.trim().toString(), _passwordText.text.trim().toString());
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Flexible(
+                          child: Text("See Upcoming Contest",
+                              textAlign: TextAlign.center,
+                              style: textStyle(
+                                  Colors.white, 12, 0.5, FontWeight.w400)),
+                        ),
+                      ],
+                    )),
+              )
             ],
           ),
         ),

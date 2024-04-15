@@ -347,7 +347,8 @@ class LoginPageState extends State<LoginPage> {
 
   Widget buildHomeContainer(BuildContext context, Size mq) {
     return Container(
-      margin: const EdgeInsets.only(left: 30, right: 30, top: 80, bottom: 30),
+      decoration: boxImageBgDecoration(),
+      padding: const EdgeInsets.only(left: 30, right: 30, top: 80, bottom: 30),
       constraints: const BoxConstraints.expand(),
       child: ListView(
         children: [

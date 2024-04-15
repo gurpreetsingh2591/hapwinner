@@ -212,7 +212,7 @@ const Map<int, Color> primaryMatColorDefs = {
 // MaterialColor primaryMatColor = const MaterialColor(appPrimaryColor, primaryMatColorDefs);
 
 const kPrimaryColor = Color.fromRGBO(58, 76, 148, 1);
-const kPrimaryColor2 = Color.fromRGBO(116, 128, 179, 1.0);
+const kPrimaryColor2 = Color.fromRGBO(161, 86, 222, 1.0);
 const kSecondaryColor = Color.fromRGBO(247, 245, 255, 1.0);
 const kButtonColor = Color.fromRGBO(255, 246, 36, 1.0);
 const kDisabledButtonColor = Color.fromRGBO(255, 246, 36, 0.5019607843137255);
@@ -225,6 +225,7 @@ const kSelectedTextColor = Color.fromRGBO(205, 15, 127, 1.0);
 const kCircleColor = Color.fromRGBO(133, 25, 231, 1.0);
 const kBaseColorDark = Color.fromRGBO(20, 0, 78, 1.0);
 const kBaseRed = Color.fromRGBO(193, 30, 30, 1.0);
+const kBaseRedLight = Color.fromRGBO(190, 82, 82, 1.0);
 const kDarkBlueColor = Color.fromRGBO(2, 9, 52, 0.3607843137254902);
 const kYellow = Color.fromRGBO(251, 255, 46, 1.0);
 const kRed = Color.fromRGBO(249, 118, 87, 1);

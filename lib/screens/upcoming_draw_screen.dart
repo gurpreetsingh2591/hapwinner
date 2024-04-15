@@ -88,7 +88,7 @@ class UpComingDrawState extends State<UpComingDrawPage> {
           child: BlocBuilder<MeetingBloc, MeetingState>(
             builder: (context, state) {
               if (state is LoadingState) {
-                return loaderBar(context, mq);
+                return buildHomeContainer(context, mq);
               } else if (state is GetOfficeSlotState) {
                 return buildHomeContainer(context, mq);
               } else if (state is FailureState) {
@@ -96,91 +96,10 @@ class UpComingDrawState extends State<UpComingDrawPage> {
                   child: Text('Error: ${state.error}'),
                 );
               }
-              return LayoutBuilder(
-                builder: (BuildContext context, BoxConstraints constraints) {
-                  if (constraints.maxWidth < 757) {
-                    return buildHomeContainer(context, mq);
-                  } else {
-                    return buildHomeContainer(context, mq);
-                  }
-                },
-              );
+              return buildHomeContainer(context, mq);
             },
           ),
         ),
-      ),
-    );
-  }
-
-  Widget loaderBar(BuildContext context, Size mq) {
-    return Container(
-      constraints: const BoxConstraints.expand(),
-      decoration: boxImageDashboardBgDecoration(),
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            height: 60,
-            decoration: kButtonBgDecoration,
-            child: TopBarWidget(
-              onTapLeft: () {},
-              onTapRight: () {},
-              leftIcon: 'assets/icons/menu.png',
-              rightIcon: 'assets/icons/user.png',
-              title: "Home",
-              rightVisibility: true,
-              leftVisibility: true,
-              bottomTextVisibility: false,
-              subTitle: '',
-              screen: 'home',
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.only(
-              bottom: 20,
-              top: 82,
-              left: 16,
-            ),
-            child: Stack(
-              children: [
-                Container(
-                  height: 500,
-                  margin: const EdgeInsets.only(bottom: 20, top: 80),
-                  child: const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Center(
-                          child: SpinKitFadingCircle(
-                        color: kLightGray,
-                        size: 80.0,
-                      ))
-                    ],
-                  ),
-                ),
-                Text.rich(
-                  textAlign: TextAlign.left,
-                  TextSpan(
-                    text: "Welcome, ",
-                    style: textStyle(Colors.black, 14, 0, FontWeight.w500),
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: studentName,
-                        style: textStyle(appBaseColor, 14, 0, FontWeight.w500),
-                      ),
-                      // can add more TextSpans here...
-                    ],
-                  ),
-                ),
-                20.height,
-                buildContestContainer(context, mq),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -197,14 +116,22 @@ class UpComingDrawState extends State<UpComingDrawPage> {
               width: mq.width,
               alignment: Alignment.center,
               decoration: kTopBarDecoration,
-              child: const Text("My Cart")),
+              child: TopBarWidget(
+                onTapLeft: () {
+                  Navigator.pop(context);
+                },
+                leftIcon: 'assets/back_arrow.png',
+                title: 'Upcoming Contest',
+                leftVisibility: true,
+                screen: 'buy_ticket',
+              ),),
           Container(
             margin: const EdgeInsets.only(top: 50),
             child: ListView(
               shrinkWrap: true,
               primary: false,
               children: [
-                buildContestContainer(context, mq),
+                buildComingDrawContainer(context, mq),
               ],
             ),
           )
@@ -213,114 +140,90 @@ class UpComingDrawState extends State<UpComingDrawPage> {
     );
   }
 
-  Widget buildContestContainer(BuildContext context, Size mq) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("Your tickets",
-                        style: TextStyle(fontSize: 16, color: Colors.white)),
-                    Text("Clear all",
-                        style: TextStyle(fontSize: 16, color: Colors.white)),
-                  ]),
-              15.height,
-              Column(
-                children: [
-                  GridView.builder(
-                    shrinkWrap: true,
-                    primary: true,
-                    itemCount: tickets.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return Card(
-                          color: appBaseColor,
-                          child:
-                              ticketItem(context, tickets[index].toString()));
-                    },
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3, childAspectRatio: 3 / 1),
-                  ),
-                ],
-              ),
-              30.height,
-               Column(
-                children: [
-                  const Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("Single Ticket price",
-                            style:
-                                TextStyle(fontSize: 16, color: Colors.white)),
-                        Text("\$4.90",
-                            style:
-                                TextStyle(fontSize: 16, color: Colors.white)),
-                      ]),
-                  10.height,
-                  const Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("Total Ticket price\n(10 X 4.90)",
-                            style:
-                            TextStyle(fontSize: 16, color: Colors.white)),
-                        Text("\$49.00",
-                            style:
-                            TextStyle(fontSize: 16, color: Colors.white)),
-                      ])
-                ],
-              ),
-              40.height,
-              Container(
-                margin: const EdgeInsets.only(left: 50, right: 50),
-                decoration: kButtonBoxDecorationEmpty,
-                height: 50,
-                alignment: Alignment.center,
-                child: ElevatedButton(
-                    onPressed: () {
-                      Future.delayed(Duration.zero, () {
-                        context.go(Routes.mainHome);
-                      });
-                      //dialogShown = false;
-                      //login(_emailText.text.trim().toString(), _passwordText.text.trim().toString());
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Flexible(
-                          child: Text("Buy Tickets".allInCaps,
-                              style: textStyle(
-                                  Colors.white, 12, 0.5, FontWeight.w400)),
-                        ),
-                      ],
-                    )),
-              )
-            ],
-          ),
-        ),
-      ],
+  Widget buildComingDrawContainer(BuildContext context, Size mq) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(10),
+      child: ListView.builder(
+        shrinkWrap: true,
+        primary: false,
+        itemCount: 5,
+        itemBuilder: (BuildContext context, int index) {
+          return upcomingContestItem(context, tickets[index].toString());
+        },
+      ),
     );
   }
 
-  Widget ticketItem(BuildContext context, String ticket) {
+  Widget upcomingContestItem(BuildContext context, String ticket) {
     return Container(
-        decoration: kTicketDecoration,
-        alignment: Alignment.center,
-        height: 30,
-        child: Text(
-          ticket,
-          style: textStyle(Colors.white, 12, 0, FontWeight.normal),
-        ));
+        margin: const EdgeInsets.only(top: 10),
+        padding: const EdgeInsets.all(20),
+        decoration: kAllCornerBoxDecoration,
+        child: Column(children: [
+          Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  alignment: Alignment.center,
+                  height: 50,
+                  width: 50,
+                  decoration: circleGreenBox,
+                  child: Image.asset(
+                    "assets/like.png",
+                    scale: 6,
+                  ),
+                ),
+                Image.asset(
+                  "assets/balls.png",
+                  scale: 4,
+                ),
+                Container(
+                  alignment: Alignment.center,
+                  child: const Text(
+                    "Contest No.\nEH4",
+                    textAlign: TextAlign.center,
+                  ),
+                )
+              ]),
+          10.height,
+          Column(
+            children: [
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Row(children: [
+                  const Icon(Icons.price_change),
+                  5.width,
+                  const Text("Ticket price",
+                      style: TextStyle(fontSize: 16, color: Colors.white)),
+                ]),
+                const Text("\$4.90",
+                    style: TextStyle(fontSize: 16, color: Colors.white)),
+              ]),
+              10.height,
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Row(children: [
+                  const Icon(Icons.lock_clock),
+                  5.width,
+                  const Text("Remaining Days",
+                      style: TextStyle(fontSize: 16, color: Colors.white)),
+                ]),
+                const Text("5d",
+                    style: TextStyle(fontSize: 16, color: Colors.white)),
+              ]),
+              10.height,
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Row(children: [
+                  const Icon(Icons.note),
+                  5.width,
+                  const Text("Tickets Remaining",
+                      style: TextStyle(fontSize: 16, color: Colors.white)),
+                ]),
+                const Text("98889",
+                    style: TextStyle(fontSize: 16, color: Colors.white)),
+              ])
+            ],
+          ),
+        ]));
   }
 }

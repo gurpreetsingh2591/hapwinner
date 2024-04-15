@@ -38,7 +38,6 @@ const String kEnterFullName = "Full Name";
 const String kEnterPhone = 'Phone Number';
 const String kData = "Data not available";
 
-
 /// Constants Strings */
 const String kSelectLang = "Select Language";
 const String kSelectLangList = "Select your language from the list below";
@@ -177,23 +176,35 @@ ThemeData dialogTheme = ThemeData(
     textTheme: ButtonTextTheme.primary, // Button text color
   ),
 );
-List<String> photos = ["https://kmschool.observer.school/uploads/Sustainability-and-DFT-300x300.png",
+List<String> photos = [
+  "https://kmschool.observer.school/uploads/Sustainability-and-DFT-300x300.png",
   "https://kmschool.observer.school/uploads/1360x768-5634774-peaky-blinders-wallpapers.jpg",
   "https://kmschool.observer.school/uploads/earthmap.png",
-  "https://kmschool.observer.school/uploads/white-chrysler-300-tbkd9gtlc4x9vbor.jpg","https://kmschool.observer.school/uploads/Sustainability-and-DFT-300x300.png",
+  "https://kmschool.observer.school/uploads/white-chrysler-300-tbkd9gtlc4x9vbor.jpg",
+  "https://kmschool.observer.school/uploads/Sustainability-and-DFT-300x300.png",
   "https://kmschool.observer.school/uploads/1360x768-5634774-peaky-blinders-wallpapers.jpg",
   "https://kmschool.observer.school/uploads/earthmap.png",
-  "https://kmschool.observer.school/uploads/white-chrysler-300-tbkd9gtlc4x9vbor.jpg"];
+  "https://kmschool.observer.school/uploads/white-chrysler-300-tbkd9gtlc4x9vbor.jpg"
+];
 
-List<String> tickets = ["5656457","1526376","8766789","4567891","8767654","1235466","2312221","6556878","1235466","1237677"];
-
+List<String> tickets = [
+  "5656457",
+  "1526376",
+  "8766789",
+  "4567891",
+  "8767654",
+  "1235466",
+  "2312221",
+  "6556878",
+  "1235466",
+  "1237677"
+];
 
 /* launchUrl(Uri url) async {
   if (!await launchUrl(url)) {
     throw Exception('Could not launch $url');
   }
 }*/
-
 
 Map<String, String> splitName(String inputString) {
   List<String> words = inputString.split(' ');
@@ -215,8 +226,8 @@ Map<String, String> splitName(String inputString) {
 BoxDecoration boxImageBgDecoration() {
   return const BoxDecoration(
     image: DecorationImage(
-      fit: BoxFit.cover,
-      image: ExactAssetImage('assets/login_bg.png',scale: 1,bundle: null),
+      fit: BoxFit.fill,
+      image: ExactAssetImage('assets/login_bg.png', scale: 1, bundle: null),
     ),
   );
 }
@@ -266,25 +277,25 @@ final kEditLineDecoration = BoxDecoration(
   border: Border(bottom: BorderSide(color: Colors.grey.shade400, width: 1.5)),
 );
 
-const circleRedBox =BoxDecoration(
+const circleRedBox = BoxDecoration(
   shape: BoxShape.circle, // This property makes the container circular
   color: red, // Set your desired background color
 );
-const circleYellowBox =BoxDecoration(
+const circleYellowBox = BoxDecoration(
   shape: BoxShape.circle, // This property makes the container circular
   color: yellow, // Set your desired background color
 );
-const circleBlueBox =BoxDecoration(
+const circleBlueBox = BoxDecoration(
   shape: BoxShape.circle, // This property makes the container circular
   color: kCircleColor, // Set your desired background color
 );
-const circleMitiBox =BoxDecoration(
+const circleMitiBox = BoxDecoration(
   shape: BoxShape.circle, // This property makes the container circular
   color: miti, // Set your desired background color
 );
 const circleGreenBox = BoxDecoration(
+  gradient: LinearGradient(colors: [kBaseRed, kBaseRedLight]),
   shape: BoxShape.circle, // This property makes the container circular
-  color: greenTrans, // Set your desired background color
 );
 const kInnerDecoration2 = BoxDecoration(
   color: Colors.red,
@@ -314,10 +325,9 @@ final kEditTextDecoration = BoxDecoration(
   borderRadius: BorderRadius.circular(5),
 );
 
- BoxDecoration kButtonBgDecoration = BoxDecoration(
+BoxDecoration kButtonBgDecoration = BoxDecoration(
   color: appBaseColor,
   borderRadius: BorderRadius.circular(5),
-
 );
 const kTopBarDecoration = BoxDecoration(
   color: appBaseColor,
@@ -325,7 +335,6 @@ const kTopBarDecoration = BoxDecoration(
 final kTicketDecoration = BoxDecoration(
   color: kBaseColor,
   borderRadius: BorderRadius.circular(15),
-
 );
 const kPIBgDecoration = BoxDecoration(
   color: appHpGreen,
@@ -340,17 +349,6 @@ final kDialogBgDecorationSecondary = BoxDecoration(
   color: appBaseColor,
   border: Border.all(color: kTrans),
   borderRadius: BorderRadius.circular(5),
-);
-
-final kWhiteUnSelectBorderDecoration = BoxDecoration(
-  border: Border.all(color: Colors.black, width: 2),
-  color: Colors.black,
-  borderRadius: BorderRadius.circular(20),
-);
-final kWhiteSelectBorderDecoration = BoxDecoration(
-  border: Border.all(color: accent, width: 2),
-  color: Colors.black,
-  borderRadius: BorderRadius.circular(20),
 );
 
 final kGradientBoxDecoration = BoxDecoration(
@@ -384,29 +382,23 @@ final kButtonBoxDecorationEmpty = BoxDecoration(
   borderRadius: BorderRadius.circular(25),
 );
 
-final kButtonBoxImageDecoration = BoxDecoration(
-  image: const DecorationImage(
-      image: AssetImage("assets/images/ic_text_button.png"), fit: BoxFit.fill),
-  borderRadius: BorderRadius.circular(10),
-);
+const kBlackButtonBoxDecoration = BoxDecoration(
+  borderRadius: BorderRadius.only(
+    topLeft: Radius.circular(10.0), // Adjust the radius as needed
+    topRight: Radius.circular(10.0), // Adjust the radius as needed
+  ),
+  border: Border(
+    top: BorderSide(
+      color: kLightGray, // Specify the color of the stroke
+      width: 2.0, // Specify the width of the stroke
+    ),
+  ),
 
-final kBlackButtonBoxDecoration = BoxDecoration(
-  gradient: const LinearGradient(colors: [kBlackColor, kBlackColor]),
-  borderRadius: BorderRadius.circular(5),
-);
-
-final kTopCornerBlackBackgroundBoxDecoration = BoxDecoration(
-  color: kBaseColor,
-  border: Border.all(color: kBlackColor),
-  gradient: const LinearGradient(colors: [kBlackColor, kBlackColor]),
-  borderRadius: const BorderRadius.only(
-      topLeft: Radius.circular(10), topRight: Radius.circular(10)),
 );
 
 final kAllCornerBoxDecoration = BoxDecoration(
   color: kBaseColor,
-  border: Border.all(color: kWhiteTrans20, width: 1),
-  gradient: const LinearGradient(colors: [kWhiteTrans, kWhiteTrans]),
+  gradient: const LinearGradient(colors: [kPrimaryColor, kPrimaryColor2]),
   borderRadius: BorderRadius.circular(20),
 );
 
@@ -497,7 +489,7 @@ bool isValidPassword(BuildContext context, String password) {
     isValid = false;
   } else if (password.length < 6) {
     isValid = false;
-  }  else {
+  } else {
     isValid = true;
   }
 

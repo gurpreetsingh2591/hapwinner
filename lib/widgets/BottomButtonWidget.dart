@@ -6,7 +6,7 @@ import '../app/AppLocalizations.dart';
 import '../app/router.dart';
 import '../utils/constant.dart';
 import '../utils/themes/colors.dart';
-import 'ButtonWidget.dart';
+import 'WinnerWidget.dart';
 
 class BottomButtonWidget extends StatelessWidget {
   final String name;
@@ -115,24 +115,7 @@ class BottomButtonWidget extends StatelessWidget {
                                   ),
                                 )),
                           ),
-                          ButtonWidget(
-                            margin: 0,
-                            rightVisibility: false,
-                            name: AppLocalizations.of(context).translate(name),
-                            icon: 'assets/images/right_arrow_icon.png',
-                            visibility: iconVisibility,
-                            padding: 10,
-                            onTap: () {
-                              onTap();
-                            },
-                            size: 18,
-                            scale: 2,
-                            height: 48,
-                            decoration: decoration,
-                            textColors: textColor,
-                            weight: FontWeight.w400,
-                            iconColor: Colors.black,
-                          ),
+
                         ]),
                   ),
                 ]),

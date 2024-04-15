@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/constant.dart';
 
-
-
 class ReminderBoxWidget extends StatelessWidget {
   final String reminderName;
   final String id;

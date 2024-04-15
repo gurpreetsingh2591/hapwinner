@@ -60,6 +60,7 @@ dependencies:
   flutter_pagewise: ^2.0.4
   upgrader: ^9.0.0
   bottom_bar_matu: ^1.4.0
+  youtube_player_flutter: ^9.0.1
 
 dev_dependencies:
   flutter_test:
@@ -99,6 +100,14 @@ flutter:
      - assets/profile_color.png
      - assets/winner_simple.png
      - assets/winner_color.png
+     - assets/draw_image.jpeg
+     - assets/balls.png
+     - assets/home_top_image.png
+     - assets/back_arrow.png
+     - assets/like.png
+     - assets/testimonial.png
+     - assets/lottery.gif
+     - assets/casino.gif
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

@@ -88,7 +88,7 @@ class MyCartState extends State<MyCartPage> {
           child: BlocBuilder<MeetingBloc, MeetingState>(
             builder: (context, state) {
               if (state is LoadingState) {
-                return loaderBar(context, mq);
+                return buildHomeContainer(context, mq);
               } else if (state is GetOfficeSlotState) {
                 return buildHomeContainer(context, mq);
               } else if (state is FailureState) {
@@ -96,91 +96,10 @@ class MyCartState extends State<MyCartPage> {
                   child: Text('Error: ${state.error}'),
                 );
               }
-              return LayoutBuilder(
-                builder: (BuildContext context, BoxConstraints constraints) {
-                  if (constraints.maxWidth < 757) {
-                    return buildHomeContainer(context, mq);
-                  } else {
-                    return buildHomeContainer(context, mq);
-                  }
-                },
-              );
+              return buildHomeContainer(context, mq);
             },
           ),
         ),
-      ),
-    );
-  }
-
-  Widget loaderBar(BuildContext context, Size mq) {
-    return Container(
-      constraints: const BoxConstraints.expand(),
-      decoration: boxImageDashboardBgDecoration(),
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            height: 60,
-            decoration: kButtonBgDecoration,
-            child: TopBarWidget(
-              onTapLeft: () {},
-              onTapRight: () {},
-              leftIcon: 'assets/icons/menu.png',
-              rightIcon: 'assets/icons/user.png',
-              title: "Home",
-              rightVisibility: true,
-              leftVisibility: true,
-              bottomTextVisibility: false,
-              subTitle: '',
-              screen: 'home',
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.only(
-              bottom: 20,
-              top: 82,
-              left: 16,
-            ),
-            child: Stack(
-              children: [
-                Container(
-                  height: 500,
-                  margin: const EdgeInsets.only(bottom: 20, top: 80),
-                  child: const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Center(
-                          child: SpinKitFadingCircle(
-                        color: kLightGray,
-                        size: 80.0,
-                      ))
-                    ],
-                  ),
-                ),
-                Text.rich(
-                  textAlign: TextAlign.left,
-                  TextSpan(
-                    text: "Welcome, ",
-                    style: textStyle(Colors.black, 14, 0, FontWeight.w500),
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: studentName,
-                        style: textStyle(appBaseColor, 14, 0, FontWeight.w500),
-                      ),
-                      // can add more TextSpans here...
-                    ],
-                  ),
-                ),
-                20.height,
-                buildContestContainer(context, mq),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -192,12 +111,22 @@ class MyCartState extends State<MyCartPage> {
       child: Stack(
         children: [
           Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              height: 50,
-              width: mq.width,
-              alignment: Alignment.center,
-              decoration: kTopBarDecoration,
-              child: const Text("My Cart")),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            height: 50,
+            width: mq.width,
+            alignment: Alignment.center,
+            decoration: kTopBarDecoration,
+            child: TopBarWidget(
+              onTapLeft: () {
+                Navigator.pop(context);
+
+              },
+              leftIcon: 'assets/back_arrow.png',
+              title: 'My Cart',
+              leftVisibility: true,
+              screen: 'buy_ticket',
+            ),
+          ),
           Container(
             margin: const EdgeInsets.only(top: 50),
             child: ListView(
@@ -253,7 +182,7 @@ class MyCartState extends State<MyCartPage> {
                 ],
               ),
               30.height,
-               Column(
+              Column(
                 children: [
                   const Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -271,10 +200,10 @@ class MyCartState extends State<MyCartPage> {
                       children: [
                         Text("Total Ticket price\n(10 X 4.90)",
                             style:
-                            TextStyle(fontSize: 16, color: Colors.white)),
+                                TextStyle(fontSize: 16, color: Colors.white)),
                         Text("\$49.00",
                             style:
-                            TextStyle(fontSize: 16, color: Colors.white)),
+                                TextStyle(fontSize: 16, color: Colors.white)),
                       ])
                 ],
               ),

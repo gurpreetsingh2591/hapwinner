@@ -13,6 +13,7 @@ import '../app/router.dart';
 
 import '../bloc/logic_bloc/meeting_bloc.dart';
 import '../bloc/state/meeting_state.dart';
+import '../widgets/ChildItemWidget.dart';
 import '../widgets/ColoredSafeArea.dart';
 import '../utils/constant.dart';
 import '../utils/shared_prefs.dart';
@@ -88,7 +89,7 @@ class BuyTicketsState extends State<BuyTicketsPage> {
           child: BlocBuilder<MeetingBloc, MeetingState>(
             builder: (context, state) {
               if (state is LoadingState) {
-                return loaderBar(context, mq);
+                return buildHomeContainer(context, mq);
               } else if (state is GetOfficeSlotState) {
                 return buildHomeContainer(context, mq);
               } else if (state is FailureState) {
@@ -96,91 +97,10 @@ class BuyTicketsState extends State<BuyTicketsPage> {
                   child: Text('Error: ${state.error}'),
                 );
               }
-              return LayoutBuilder(
-                builder: (BuildContext context, BoxConstraints constraints) {
-                  if (constraints.maxWidth < 757) {
-                    return buildHomeContainer(context, mq);
-                  } else {
-                    return buildHomeContainer(context, mq);
-                  }
-                },
-              );
+              return buildHomeContainer(context, mq);
             },
           ),
         ),
-      ),
-    );
-  }
-
-  Widget loaderBar(BuildContext context, Size mq) {
-    return Container(
-      constraints: const BoxConstraints.expand(),
-      decoration: boxImageDashboardBgDecoration(),
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            height: 60,
-            decoration: kButtonBgDecoration,
-            child: TopBarWidget(
-              onTapLeft: () {},
-              onTapRight: () {},
-              leftIcon: 'assets/icons/menu.png',
-              rightIcon: 'assets/icons/user.png',
-              title: "Home",
-              rightVisibility: true,
-              leftVisibility: true,
-              bottomTextVisibility: false,
-              subTitle: '',
-              screen: 'home',
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.only(
-              bottom: 20,
-              top: 82,
-              left: 16,
-            ),
-            child: Stack(
-              children: [
-                Container(
-                  height: 500,
-                  margin: const EdgeInsets.only(bottom: 20, top: 80),
-                  child: const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Center(
-                          child: SpinKitFadingCircle(
-                        color: kLightGray,
-                        size: 80.0,
-                      ))
-                    ],
-                  ),
-                ),
-                Text.rich(
-                  textAlign: TextAlign.left,
-                  TextSpan(
-                    text: "Welcome, ",
-                    style: textStyle(Colors.black, 14, 0, FontWeight.w500),
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: studentName,
-                        style: textStyle(appBaseColor, 14, 0, FontWeight.w500),
-                      ),
-                      // can add more TextSpans here...
-                    ],
-                  ),
-                ),
-                20.height,
-                buildContestContainer(context, mq),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -192,12 +112,22 @@ class BuyTicketsState extends State<BuyTicketsPage> {
       child: Stack(
         children: [
           Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              height: 50,
-              width: mq.width,
-              alignment: Alignment.center,
-              decoration: kTopBarDecoration,
-              child: const Text("Buy Tickets")),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            height: 50,
+            width: mq.width,
+            alignment: Alignment.center,
+            decoration: kTopBarDecoration,
+            child: TopBarWidget(
+              onTapLeft: () {
+                Navigator.pop(context);
+
+              },
+              leftIcon: 'assets/back_arrow.png',
+              title: 'Buy Tickets',
+              leftVisibility: true,
+              screen: 'buy_ticket',
+            ),
+          ),
           Container(
             margin: const EdgeInsets.only(top: 50),
             child: ListView(
@@ -264,7 +194,7 @@ class BuyTicketsState extends State<BuyTicketsPage> {
                       return Card(
                           color: appBaseColor,
                           child:
-                              ticketItem(context, tickets[index].toString()));
+                          TicketItemWidget(  name: tickets[index].toString(), closeIconVisibility: false, onTap: () {  },));
                     },
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
@@ -307,14 +237,4 @@ class BuyTicketsState extends State<BuyTicketsPage> {
     );
   }
 
-  Widget ticketItem(BuildContext context, String ticket) {
-    return Container(
-        decoration: kTicketDecoration,
-        alignment: Alignment.center,
-        height: 30,
-        child: Text(
-          ticket,
-          style: textStyle(Colors.white, 12, 0, FontWeight.normal),
-        ));
-  }
 }

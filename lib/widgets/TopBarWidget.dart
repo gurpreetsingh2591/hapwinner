@@ -5,26 +5,16 @@ import '../utils/constant.dart';
 class TopBarWidget extends StatelessWidget {
   final String leftIcon;
   final String screen;
-  final String rightIcon;
   final String title;
-  final String subTitle;
   final VoidCallback onTapLeft;
-  final VoidCallback onTapRight;
-  final bool rightVisibility;
   final bool leftVisibility;
-  final bool bottomTextVisibility;
 
   const TopBarWidget({
     Key? key,
     required this.onTapLeft,
-    required this.onTapRight,
     required this.leftIcon,
-    required this.rightIcon,
     required this.title,
-    required this.rightVisibility,
     required this.leftVisibility,
-    required this.bottomTextVisibility,
-    required this.subTitle,
     required this.screen,
   }) : super(key: key);
 
@@ -42,7 +32,8 @@ class TopBarWidget extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Image.asset(
                   leftIcon,
-                  scale: 8,
+                  scale: 4,
+                  color: Colors.white,
                 ),
               ),
             ),
@@ -53,7 +44,7 @@ class TopBarWidget extends StatelessWidget {
               margin: const EdgeInsets.only(right: 30),
               alignment: Alignment.center,
               child: Text(
-                AppLocalizations.of(context).translate(title),
+                title,
                 textAlign: TextAlign.center,
                 style: textStyle(
                   Colors.white,
@@ -65,18 +56,19 @@ class TopBarWidget extends StatelessWidget {
             ),
           ),
           Visibility(
-              visible: rightVisibility,
-              child: GestureDetector(
-                onTap: () => {onTapRight()},
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Image.asset(
-                    rightIcon,
-                    scale:10,
-                    color: Colors.white,
-                  ),
+            visible: false,
+            child: GestureDetector(
+              onTap: () => {onTapLeft()},
+              child: Align(
+                alignment: Alignment.center,
+                child: Image.asset(
+                  leftIcon,
+                  scale: 4,
+                  color: Colors.white,
                 ),
-              )),
+              ),
+            ),
+          )
         ]);
   }
 }

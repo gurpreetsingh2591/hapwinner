@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hap_winner_project/screens/buy_ticket_screen.dart';
 import 'package:hap_winner_project/screens/home_screen.dart';
 import 'package:hap_winner_project/screens/my_cart_screen.dart';
+import 'package:hap_winner_project/screens/upcoming_draw_screen.dart';
 
 import '../screens/login_screen.dart';
 
@@ -14,7 +15,7 @@ class Routes {
   static const account = '/account';
   static const signIn = '/';
   static const forgotPassword = '/forgot_password';
-  static const verifyEmail = '/verify-email';
+  static const upcomingContest = '/upcoming_contest';
   static const deviceInfo = '/device-info';
 
   static const accountInfo = '/account-info';
@@ -52,6 +53,9 @@ GoRouter buildRouter() {
       GoRoute(
         path: Routes.myCart,
         builder: (_, __) => const MyCartPage(),
+      ),GoRoute(
+        path: Routes.upcomingContest,
+        builder: (_, __) => const UpComingDrawPage(),
       ),
      /* GoRoute(
         path: Routes.changePassword,
