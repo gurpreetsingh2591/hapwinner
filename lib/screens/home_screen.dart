@@ -9,15 +9,16 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hap_winner_project/screens/profile_screen.dart';
 import 'package:hap_winner_project/utils/extensions/extensions.dart';
+import 'package:hap_winner_project/widgets/ProfilePageWidget.dart';
 import 'package:hap_winner_project/widgets/TestimonialWidget.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../app/router.dart';
 
-import '../bloc/logic_bloc/meeting_bloc.dart';
+import '../bloc/logic_bloc/home_bloc.dart';
 import '../bloc/state/meeting_state.dart';
-import '../widgets/ChildItemWidget.dart';
+import '../widgets/TicketItemWidget.dart';
 import '../widgets/ColoredSafeArea.dart';
 import '../utils/constant.dart';
 import '../utils/shared_prefs.dart';
@@ -40,19 +41,21 @@ class HomePageState extends State<HomePage> {
   bool isLogin = false;
   List<Map<String, dynamic>> retrievedStudents = [];
   String studentName = "";
-  final meetingBloc = MeetingBloc();
+  final testimonialBloc = HomeBloc();
   final PageController controller = PageController();
   bool index1 = true;
   bool index2 = false;
   bool index3 = false;
   bool index4 = false;
-  final YoutubePlayerController _controller = YoutubePlayerController(
-    initialVideoId: 'U8CTJ23AdHE',
-    flags: const YoutubePlayerFlags(
-      autoPlay: true,
-      mute: true,
-    ),
-  );
+  final List<String> _videoUrlList = [
+    'https://youtu.be/dWs3dzj4Wng',
+    'https://www.youtube.com/watch?v=668nUCeBHyY',
+    'https://youtu.be/S3npWREXr8s',
+  ];
+
+  List<YoutubePlayerController> lYTC = [];
+
+  Map<String, dynamic> cStates = {};
 
   @override
   void initState() {
@@ -66,6 +69,34 @@ class HomePageState extends State<HomePage> {
       studentName = SharedPrefs().getUserFullName().toString();
     });
     getStudentList();
+    fillYTlists();
+  }
+
+  fillYTlists() {
+    for (var element in _videoUrlList) {
+      String _id = YoutubePlayer.convertUrlToId(element)!;
+      YoutubePlayerController _ytController = YoutubePlayerController(
+        initialVideoId: _id,
+        flags: const YoutubePlayerFlags(
+          autoPlay: false,
+          enableCaption: true,
+          captionLanguage: 'en',
+        ),
+      );
+
+      _ytController.addListener(() {
+        print('for $_id got isPlaying state ${_ytController.value.isPlaying}');
+        if (cStates[_id] != _ytController.value.isPlaying) {
+          if (mounted) {
+            setState(() {
+              cStates[_id] = _ytController.value.isPlaying;
+            });
+          }
+        }
+      });
+
+      lYTC.add(_ytController);
+    }
   }
 
   getStudentList() async {
@@ -86,7 +117,7 @@ class HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context).size;
     return BlocProvider(
-        create: (context) => meetingBloc,
+        create: (context) => testimonialBloc,
         child: Scaffold(
             key: _scaffoldKey,
             body: Stack(children: [
@@ -124,7 +155,7 @@ class HomePageState extends State<HomePage> {
                   children: <Widget>[
                     Center(
                       child: ColoredSafeArea(
-                        child: BlocBuilder<MeetingBloc, MeetingState>(
+                        child: BlocBuilder<HomeBloc, MeetingState>(
                           builder: (context, state) {
                             if (state is LoadingState) {
                               return buildHomeContainer(context, mq, true);
@@ -142,7 +173,7 @@ class HomePageState extends State<HomePage> {
                     ),
                     Center(
                       child: ColoredSafeArea(
-                        child: BlocBuilder<MeetingBloc, MeetingState>(
+                        child: BlocBuilder<HomeBloc, MeetingState>(
                           builder: (context, state) {
                             if (state is LoadingState) {
                               return buildWinnerContainer(context, mq, true);
@@ -160,7 +191,7 @@ class HomePageState extends State<HomePage> {
                     ),
                     Center(
                       child: ColoredSafeArea(
-                        child: BlocBuilder<MeetingBloc, MeetingState>(
+                        child: BlocBuilder<HomeBloc, MeetingState>(
                           builder: (context, state) {
                             if (state is LoadingState) {
                               return buildTestimonialContainer(
@@ -181,18 +212,24 @@ class HomePageState extends State<HomePage> {
                     ),
                     Center(
                       child: ColoredSafeArea(
-                        child: BlocBuilder<MeetingBloc, MeetingState>(
+                        child: BlocBuilder<HomeBloc, MeetingState>(
                           builder: (context, state) {
                             if (state is LoadingState) {
-                              return buildProfileContainer(context, mq, true);
+                              return ProfilePageWidget(
+                                onTap: () {},
+                              );
                             } else if (state is GetOfficeSlotState) {
-                              return buildProfileContainer(context, mq, false);
+                              return ProfilePageWidget(
+                                onTap: () {},
+                              );
                             } else if (state is FailureState) {
                               return Center(
                                 child: Text('Error: ${state.error}'),
                               );
                             }
-                            return buildProfileContainer(context, mq, false);
+                            return ProfilePageWidget(
+                              onTap: () {},
+                            );
                           },
                         ),
                       ),
@@ -201,156 +238,146 @@ class HomePageState extends State<HomePage> {
                 ),
               ),
               Positioned(bottom: 0, child: bottomBar(mq)),
-
             ])));
   }
 
   Widget bottomBar(Size mq) {
     return Container(
-      decoration: kBlackButtonBoxDecoration,
+        decoration: kBlackButtonBoxDecoration,
         width: mq.width,
         child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            margin: const EdgeInsets.all(15),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                InkWell(
+                  onTap: () {
+                    setState(() {
+                      index1 = true;
+                      index2 = false;
+                      index3 = false;
+                      index4 = false;
+                      controller.jumpToPage(0);
+                    });
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Column(children: [
+                      Image.asset(
+                        index1
+                            ? "assets/home_color.png"
+                            : "assets/home_simple.png",
+                        scale: 5,
+                      ),
+                      5.height,
+                      Text(
+                        "Home",
+                        style: textStyle(
+                            index1 ? kSelectedTextColor : kUnselectedTextColor,
+                            12,
+                            0,
+                            FontWeight.normal),
+                      )
+                    ]),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    setState(() {
+                      index1 = false;
+                      index2 = true;
+                      index3 = false;
+                      index4 = false;
+                      controller.jumpToPage(1);
+                    });
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Column(children: [
+                      Image.asset(
+                        index2
+                            ? "assets/winner_color.png"
+                            : "assets/winner_simple.png",
+                        scale: 5,
+                      ),
+                      5.height,
+                      Text(
+                        "Winners",
+                        style: textStyle(
+                            index2 ? kSelectedTextColor : kUnselectedTextColor,
+                            12,
+                            0,
+                            FontWeight.normal),
+                      )
+                    ]),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    setState(() {
+                      controller.jumpToPage(2);
 
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                margin: const EdgeInsets.all(15),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          index1 = true;
-                          index2 = false;
-                          index3 = false;
-                          index4 = false;
-                          controller.jumpToPage(0);
-                        });
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: Column(children: [
-                          Image.asset(
-                            index1
-                                ? "assets/home_color.png"
-                                : "assets/home_simple.png",
-                            scale: 5,
-                          ),
-                          5.height,
-                          Text(
-                            "Home",
-                            style: textStyle(
-                                index1
-                                    ? kSelectedTextColor
-                                    : kUnselectedTextColor,
-                                12,
-                                0,
-                                FontWeight.normal),
-                          )
-                        ]),
+                      index1 = false;
+                      index2 = false;
+                      index3 = true;
+                      index4 = false;
+                    });
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Column(children: [
+                      Image.asset(
+                        index3
+                            ? "assets/testimonial_color.png"
+                            : "assets/testimonial_simple.png",
+                        scale: 5,
                       ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          index1 = false;
-                          index2 = true;
-                          index3 = false;
-                          index4 = false;
-                          controller.jumpToPage(1);
-                        });
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: Column(children: [
-                          Image.asset(
-                            index2
-                                ? "assets/winner_color.png"
-                                : "assets/winner_simple.png",
-                            scale: 5,
-                          ),
-                          5.height,
-                          Text(
-                            "Winners",
-                            style: textStyle(
-                                index2
-                                    ? kSelectedTextColor
-                                    : kUnselectedTextColor,
-                                12,
-                                0,
-                                FontWeight.normal),
-                          )
-                        ]),
+                      5.height,
+                      Text(
+                        "Testimonials",
+                        style: textStyle(
+                            index3 ? kSelectedTextColor : kUnselectedTextColor,
+                            12,
+                            0,
+                            FontWeight.normal),
+                      )
+                    ]),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    setState(() {
+                      controller.jumpToPage(3);
+                      index1 = false;
+                      index2 = false;
+                      index3 = false;
+                      index4 = true;
+                    });
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Column(children: [
+                      Image.asset(
+                        index4
+                            ? "assets/profile_color.png"
+                            : "assets/profile.png",
+                        scale: 5,
                       ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          controller.jumpToPage(2);
-
-                          index1 = false;
-                          index2 = false;
-                          index3 = true;
-                          index4 = false;
-                        });
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: Column(children: [
-                          Image.asset(
-                            index3
-                                ? "assets/testimonial_color.png"
-                                : "assets/testimonial_simple.png",
-                            scale: 5,
-                          ),
-                          5.height,
-                          Text(
-                            "Testimonials",
-                            style: textStyle(
-                                index3
-                                    ? kSelectedTextColor
-                                    : kUnselectedTextColor,
-                                12,
-                                0,
-                                FontWeight.normal),
-                          )
-                        ]),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          controller.jumpToPage(3);
-                          index1 = false;
-                          index2 = false;
-                          index3 = false;
-                          index4 = true;
-                        });
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: Column(children: [
-                          Image.asset(
-                            index4
-                                ? "assets/profile_color.png"
-                                : "assets/profile.png",
-                            scale: 5,
-                          ),
-                          5.height,
-                          Text(
-                            "Profile",
-                            style: textStyle(
-                                index4
-                                    ? kSelectedTextColor
-                                    : kUnselectedTextColor,
-                                12,
-                                0,
-                                FontWeight.normal),
-                          )
-                        ]),
-                      ),
-                    )
-                  ],
-                )));
+                      5.height,
+                      Text(
+                        "Profile",
+                        style: textStyle(
+                            index4 ? kSelectedTextColor : kUnselectedTextColor,
+                            12,
+                            0,
+                            FontWeight.normal),
+                      )
+                    ]),
+                  ),
+                )
+              ],
+            )));
   }
 
   Widget buildHomeContainer(BuildContext context, Size mq, bool loading) {
@@ -426,7 +453,7 @@ class HomePageState extends State<HomePage> {
               child: ListView.builder(
                 shrinkWrap: true,
                 primary: false,
-                itemCount: 5,
+                itemCount: 1,
                 itemBuilder: (BuildContext context, int index) {
                   return WinnerWidget(
                     onTap: () {},
@@ -442,9 +469,8 @@ class HomePageState extends State<HomePage> {
   Widget buildTestimonialContainer(
       BuildContext context, Size mq, bool loading) {
     return Container(
-      constraints: const BoxConstraints.expand(),
-      child: Stack(
-        children: [
+        constraints: const BoxConstraints.expand(),
+        child: Stack(children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             height: 60,
@@ -460,237 +486,83 @@ class HomePageState extends State<HomePage> {
             ),
           ),
           Container(
-              margin: const EdgeInsets.only(top: 60, left: 20, right: 20),
-              child: ListView.builder(
-                shrinkWrap: true,
-                primary: false,
-                itemCount: 5,
-                itemBuilder: (BuildContext context, int index) {
-                  return TestimonialWidget(
+            margin: const EdgeInsets.only(top: 60, left: 20, right: 20),
+            child: ListView.builder(
+              shrinkWrap: true,
+              primary: false,
+              itemCount: 3,
+              itemBuilder: (BuildContext context, int index) {
+                YoutubePlayerController _ytController = lYTC[index];
+
+
+                return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Column( children: [
+                      Container(
+                        height: 220.0,
+                        decoration: const BoxDecoration(
+                          color: Color(0xfff5f5f5),
+                          borderRadius: BorderRadius.all(Radius.circular(12)),
+                        ),
+                        child: ClipRRect(
+                            borderRadius: const BorderRadius.only(
+                              topRight: Radius.circular(12),
+                              topLeft: Radius.circular(12),
+                            ),
+                          child: YoutubePlayer(
+                            controller: _ytController,
+                            showVideoProgressIndicator: true,
+                            progressIndicatorColor: Colors.lightBlueAccent,
+                            bottomActions: [
+                              CurrentPosition(),
+                              ProgressBar(isExpanded: true),
+                              FullScreenButton(),
+                            ],
+                            onReady: () {
+                              print('onReady for $index');
+                            },
+                            onEnded: (YoutubeMetaData _md) {
+                              _ytController.seekTo(const Duration(seconds: 0));
+                            },
+                          ),
+                        ),
+                      ),
+                      Container(
+
+                        padding: const EdgeInsets.all(10),
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withOpacity(0.9),
+                          borderRadius: const BorderRadius.only(
+                            bottomRight: Radius.circular(12),
+                            bottomLeft: Radius.circular(12),
+                          ),
+                        ),
+                        child: Row(children: [
+                        ClipRRect(
+                        borderRadius: const BorderRadius.all(Radius.circular(20)
+                      ),child: Image.asset(
+                            "assets/testimonial.png",
+                            scale: 7,
+                          ),),
+                          20.width,
+                           Text(
+                            "Katrina ",
+                            style: textStyle(Colors.white, 22, 0, FontWeight.normal),
+                          ),
+                        ]),
+                      ),
+                    ]));
+              },
+            ),
+          ), /*TestimonialWidget(
                     onTap: () {},
                     decoration: kAllCornerBoxDecoration,
                     name: 'Katrine',
                     testimonial:
                         'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
                     image: 'assets/testimonial.png',
-                  );
-                },
-              )),
-        ],
-      ),
-    );
-  }
-
-  Widget buildProfileContainer(BuildContext context, Size mq, bool loading) {
-    return Container(
-        decoration: kTopBarDecoration,
-        constraints: const BoxConstraints.expand(),
-        child: Stack(children: [
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                height: 60,
-                width: mq.width,
-                alignment: Alignment.center,
-                decoration: kTopBarDecoration,
-                child: TopBarWidget(
-                  onTapLeft: () {},
-                  leftIcon: 'assets/back_arrow.png',
-                  title: 'Profile',
-                  leftVisibility: false,
-                  screen: 'buy_ticket',
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(20),
-                child: ListView(
-                  shrinkWrap: true,
-                  primary: false,
-                  children: [
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Personal Details",
-                            style:
-                                textStyle(Colors.white, 22, 0, FontWeight.w500),
-                          ),
-                          const Icon(
-                            Icons.edit,
-                            size: 18,
-                          ),
-                        ]),
-                    20.height,
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Name  :",
-                            style:
-                                textStyle(Colors.white, 16, 0, FontWeight.w400),
-                          ),
-                          10.width,
-                          Text(
-                            "John",
-                            style:
-                                textStyle(Colors.white, 16, 0, FontWeight.w400),
-                          ),
-                        ]),
-                    5.height,
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Date of birth  :",
-                            style:
-                                textStyle(Colors.white, 16, 0, FontWeight.w400),
-                          ),
-                          10.width,
-                          Text(
-                            "15-04-1987",
-                            style:
-                                textStyle(Colors.white, 16, 0, FontWeight.w400),
-                          ),
-                        ]),
-                    5.height,
-
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Email  :",
-                            style:
-                                textStyle(Colors.white, 16, 0, FontWeight.w400),
-                          ),
-                          10.width,
-                          Text(
-                            "john@yopmail.com",
-                            style:
-                                textStyle(Colors.white, 16, 0, FontWeight.w400),
-                          ),
-                        ]),
-                    5.height,
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Phone  :",
-                            style:
-                                textStyle(Colors.white, 16, 0, FontWeight.w400),
-                          ),
-                          10.width,
-                          Text(
-                            "+167767777",
-                            style:
-                                textStyle(Colors.white, 16, 0, FontWeight.w400),
-                          ),
-                        ]),
-                    5.height,
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Address  :",
-                            style:
-                            textStyle(Colors.white, 16, 0, FontWeight.w400),
-                          ),
-                          10.width,
-                          Text(
-                            "8198 Fieldstone, WI 54601",
-                            style:
-                            textStyle(Colors.white, 16, 0, FontWeight.w400),
-                          ),
-                        ]),
-                    15.height,
-                    const Divider(thickness: 1,color: Colors.white,),
-                    15.height,
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Account Settings",
-                            style:
-                            textStyle(Colors.white, 22, 0, FontWeight.w500),
-                          ),
-                          const Icon(
-                            Icons.edit,
-                            size: 18,
-                          ),
-                        ]),
-                    15.height,
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Language  :",
-                            style:
-                            textStyle(Colors.white, 16, 0, FontWeight.w400),
-                          ),
-                          10.width,
-                          Text(
-                            "English (United States)",
-                            style:
-                            textStyle(Colors.white, 16, 0, FontWeight.w400),
-                          ),
-                        ]),
-                    5.height,
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Time Zone  :",
-                            style:
-                            textStyle(Colors.white, 16, 0, FontWeight.w400),
-                          ),
-                          10.width,
-                          Text(
-                            "(GMT-06:00) Central America",
-                            style:
-                            textStyle(Colors.white, 16, 0, FontWeight.w400),
-                          ),
-                        ]),
-                    5.height,
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Status  :",
-                            style:
-                            textStyle(Colors.white, 16, 0, FontWeight.w400),
-                          ),
-                          10.width,
-                          Text(
-                            "Active",
-                            style:
-                            textStyle(Colors.white, 16, 0, FontWeight.w400),
-                          ),
-                        ]),
-                    15.height,
-                    const Divider(thickness: 1,color: Colors.white,),
-                    15.height,
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Change Password",
-                            style:
-                            textStyle(Colors.white, 22, 0, FontWeight.w500),
-                          ),
-                          const Icon(
-                            Icons.edit,
-                            size: 18,
-                          ),
-                        ]),
-                    15.height,
-                  ],
-                ),
-              ),
-            ],
-          ),
+                  );*/
         ]));
   }
 
@@ -700,58 +572,96 @@ class HomePageState extends State<HomePage> {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(
-          width: mq.width,
-          child: Image.asset("assets/home_top_image.png"),
-        ),
+        Stack(children: [
+          SizedBox(
+            width: mq.width,
+            child: Image.asset("assets/home_top_image.png"),
+          ),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            child: Image.asset(
+              "assets/splash_logo.png",
+              scale: 4,
+            ),
+          )
+        ]),
         Container(
           margin: const EdgeInsets.all(20),
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
           decoration: kButtonBgDecoration,
-          child: Column(
-            children: [
-              const Text(
-                "Contest Draw starts on",
-                style: TextStyle(color: Colors.white),
-              ),
-              10.height,
-              const Text(
-                "15d | 05h | 45m | 34s",
-                style: TextStyle(color: Colors.white),
-              ),
-              15.height,
-              Container(
-                margin: const EdgeInsets.only(left: 50, right: 50),
-                decoration: kButtonBoxDecorationEmpty,
-                height: 40,
+          child: Stack(children: [
+/*              Align(
                 alignment: Alignment.center,
-                child: ElevatedButton(
-                    onPressed: () {
-                      if (kDebugMode) {
-                        print("object");
-                      }
-                      Future.delayed(Duration.zero, () {
-                        context.push(Routes.buyTickets);
-                      });
-                      //dialogShown = false;
-                      //login(_emailText.text.trim().toString(), _passwordText.text.trim().toString());
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Flexible(
-                          child: Text("Buy Tickets",
-                              style: textStyle(
-                                  Colors.white, 12, 0.5, FontWeight.w400)),
-                        ),
-                      ],
-                    )),
-              )
-            ],
-          ),
+                child: Image.asset("assets/spiner.gif",scale: 1,),)*/
+            Column(
+              children: [
+                Text(
+                  "Contest Draw".allInCaps,
+                  style: textStyle(Colors.white, 18, 0, FontWeight.w500),
+                ),
+                Text(
+                  "April Month Contest Draw",
+                  style: textStyle(Colors.white, 16, 0, FontWeight.normal),
+                ),
+                15.height,
+                Container(
+                  height: 1,
+                  width: mq.width,
+                  color: Colors.grey,
+                ),
+                15.height,
+                Column(
+                  children: [
+                    Text(
+                      "Contest Draw starts on".allInCaps,
+                      style: textStyle(Colors.white, 18, 0, FontWeight.w500),
+                    ),
+                    10.height,
+                    Text(
+                      "15d | 05h | 45m | 34s",
+                      style: textStyle(Colors.white, 16, 0, FontWeight.w500),
+                    ),
+                  ],
+                ),
+                25.height,
+                Text(
+                  "Rs. 100 Per Ticket",
+                  style: textStyle(Colors.white, 18, 0, FontWeight.w500),
+                ),
+                15.height,
+                Container(
+                  margin: const EdgeInsets.only(left: 50, right: 50),
+                  decoration: kButtonBoxDecorationEmpty,
+                  height: 50,
+                  alignment: Alignment.center,
+                  child: ElevatedButton(
+                      onPressed: () {
+                        if (kDebugMode) {
+                          print("object");
+                        }
+                        Future.delayed(Duration.zero, () {
+                          context.push(Routes.buyTickets);
+                        });
+                        //dialogShown = false;
+                        //login(_emailText.text.trim().toString(), _passwordText.text.trim().toString());
+                      },
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Flexible(
+                            child: Text("Buy Tickets".allInCaps,
+                                style: textStyle(
+                                    Colors.white, 16, 0.5, FontWeight.w400)),
+                          ),
+                        ],
+                      )),
+                )
+              ],
+            ),
+          ]),
         ),
         Container(
           margin: const EdgeInsets.only(left: 20, right: 20),
@@ -761,9 +671,9 @@ class HomePageState extends State<HomePage> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 "How it work",
-                style: TextStyle(color: Colors.white),
+                style: textStyle(Colors.white, 22, 0, FontWeight.w400),
               ),
               10.height,
               Row(
@@ -775,14 +685,17 @@ class HomePageState extends State<HomePage> {
                       width: 25,
                       alignment: Alignment.center,
                       decoration: circleBlueBox,
-                      child: const Text("1", style: TextStyle(fontSize: 12)),
+                      child: Text("1",
+                          style:
+                              textStyle(Colors.white, 16, 0, FontWeight.w400)),
                     ),
                   ),
                   10.width,
-                  const Flexible(
+                  Flexible(
                       flex: 8,
-                      child: Text("Buy Contest Tickets",
-                          style: TextStyle(fontSize: 12))),
+                      child: Text("Buy Contest Tickets".allInCaps,
+                          style:
+                              textStyle(Colors.white, 16, 0, FontWeight.w400))),
                 ],
               ),
               10.height,
@@ -795,14 +708,17 @@ class HomePageState extends State<HomePage> {
                       width: 25,
                       alignment: Alignment.center,
                       decoration: circleBlueBox,
-                      child: const Text("2", style: TextStyle(fontSize: 12)),
+                      child: Text("2",
+                          style:
+                              textStyle(Colors.white, 16, 0, FontWeight.w400)),
                     ),
                   ),
                   10.width,
-                  const Flexible(
+                  Flexible(
                       flex: 8,
-                      child: Text("Wait for contest draw",
-                          style: TextStyle(fontSize: 12))),
+                      child: Text("Wait for contest draw".allInCaps,
+                          style:
+                              textStyle(Colors.white, 16, 0, FontWeight.w400))),
                 ],
               ),
               10.height,
@@ -815,17 +731,18 @@ class HomePageState extends State<HomePage> {
                       width: 25,
                       alignment: Alignment.center,
                       decoration: circleBlueBox,
-                      child: const Text(
+                      child: Text(
                         "3",
-                        style: TextStyle(fontSize: 12),
+                        style: textStyle(Colors.white, 16, 0, FontWeight.w400),
                       ),
                     ),
                   ),
                   10.width,
-                  const Flexible(
+                  Flexible(
                       flex: 8,
-                      child: Text("Get a chance to win",
-                          style: TextStyle(fontSize: 12))),
+                      child: Text("Get a chance to win".allInCaps,
+                          style:
+                              textStyle(Colors.white, 16, 0, FontWeight.w400))),
                 ],
               ),
             ],
@@ -837,31 +754,40 @@ class HomePageState extends State<HomePage> {
           decoration: kButtonBgDecoration,
           child: Column(
             children: [
-              const Text(
-                "Upcoming Contest",
-                style: TextStyle(color: Colors.white),
-              ),
-              10.height,
-              Image.asset(
-                "assets/balls.png",
-                scale: 4,
+              Text(
+                "Previous Month Winners".allInCaps,
+                textAlign: TextAlign.center,
+                style: textStyle(Colors.white, 18, 0, FontWeight.w400),
               ),
               15.height,
+              Image.asset(
+                "assets/trip.jpeg",
+                scale: 2,
+              ),
+              20.height,
               Container(
                 margin: const EdgeInsets.only(left: 30, right: 30),
                 decoration: kButtonBoxDecorationEmpty,
-                height: 40,
+                height: 50,
                 alignment: Alignment.center,
                 child: ElevatedButton(
                     onPressed: () {
                       if (kDebugMode) {
                         print("object");
                       }
-                      Future.delayed(Duration.zero, () {
-                        context.push(Routes.upcomingContest);
+
+                      setState(() {
+                        index1 = false;
+                        index2 = true;
+                        index3 = false;
+                        index4 = false;
+                        controller.jumpToPage(1);
                       });
+                      /*Future.delayed(Duration.zero, () {
+                        context.push(Routes.upcomingContest);
+                      });*/
                       //dialogShown = false;
-                      //login(_emailText.text.trim().toString(), _passwordText.text.trim().toString());
+                      //login(_emailText.text.trim().toString(), _controllerpasswordText.text.trim().toString());
                     },
                     style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
@@ -870,10 +796,10 @@ class HomePageState extends State<HomePage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Flexible(
-                          child: Text("See Upcoming Contest",
+                          child: Text("See Previous Contest Winners".allInCaps,
                               textAlign: TextAlign.center,
                               style: textStyle(
-                                  Colors.white, 12, 0.5, FontWeight.w400)),
+                                  Colors.white, 16, 0, FontWeight.w400)),
                         ),
                       ],
                     )),

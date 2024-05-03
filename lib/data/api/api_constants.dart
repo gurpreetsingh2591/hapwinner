@@ -2,18 +2,14 @@ class ApiConstants {
 
 
   //Server url
-  static String baseUrl = 'http://kmschool.observer.school/app23/';
+  static String baseUrl = 'https://lottery.netfruxinfotech.com/api/';
   static String baseUrlAssets = '';
 
 
   // url end point
-  static String usersSignUp = 'api/v1/register';
-  static String usersChangePassword = 'update';
-  static String signInWithPassword = 'api/v1/login';
-  static String forgotPassword = 'api/v1/forget_password';
-  static String verifyOTP = 'api/v1/verify_otp';
-  static String resetPassword = 'api/v1/password/reset';
-  static String API_LOGIN = "login.php";
+  static String usersSignUp = 'signup';
+  static String apiLogin = "login";
+  static String apiTestimonials = "testimonials";
   static String API_FORGOT_PASSWORD = "forgot_password";
   static String API_GET_LUNCH_MENU = "lunchmenu.php";
   static String API_GET_SNACK_MENU="snackmenu.php";

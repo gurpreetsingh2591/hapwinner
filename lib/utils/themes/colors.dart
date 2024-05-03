@@ -212,6 +212,8 @@ const Map<int, Color> primaryMatColorDefs = {
 // MaterialColor primaryMatColor = const MaterialColor(appPrimaryColor, primaryMatColorDefs);
 
 const kPrimaryColor = Color.fromRGBO(58, 76, 148, 1);
+const kFacebookColor = Color.fromRGBO(24, 119, 242, 1.0);
+const kGoogleColor = Color.fromRGBO(219, 68, 55, 1.0);
 const kPrimaryColor2 = Color.fromRGBO(161, 86, 222, 1.0);
 const kSecondaryColor = Color.fromRGBO(247, 245, 255, 1.0);
 const kButtonColor = Color.fromRGBO(255, 246, 36, 1.0);

@@ -5,8 +5,8 @@ import '../../data/api/ApiService.dart';
 import '../event/get_messages_event.dart';
 import '../state/common_state.dart';
 
-class MessagesBloc extends Bloc<MessageMenuEvent, CommonState> {
-  MessagesBloc() : super(InitialState()) {
+class BuyTicketBloc extends Bloc<MessageMenuEvent, CommonState> {
+  BuyTicketBloc() : super(InitialState()) {
     on<GetSchoolMessageData>(_onGetSchoolMessageData);
     on<GetTeacherMessageData>(_onGetTeacherMessageData);
   }

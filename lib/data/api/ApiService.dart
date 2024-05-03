@@ -8,168 +8,13 @@ import '../../utils/constant.dart';
 import 'api_constants.dart';
 
 class ApiService {
-  Future<dynamic> signup(
-      String email, String password, String firstName, String lastName) async {
-    try {
-      var result = await channel.invokeMethod("signup", {
-        "email": email,
-        "password": password,
-        "firstName": firstName,
-        "lastName": lastName
-      });
-      if (result != false) {
-        if (kDebugMode) {
-          print("signup--$result");
-        }
-        return result;
-      } else {
-        return false;
-      }
-    } on PlatformException catch (e) {
-      //Handle error
 
-      if (kDebugMode) {
-        print(e);
-      }
-      return false;
-    }
-  }
-
-  Future<dynamic> login(String email, String password) async {
-    try {
-      var result = await channel
-          .invokeMethod("login", {"email": email, "password": password});
-
-      if (result != false) {
-        if (kDebugMode) {
-          print("login--$result");
-        }
-        return result;
-      } else {
-        return false;
-      }
-    } on PlatformException catch (e) {
-      //Handle error
-      if (kDebugMode) {
-        print(e);
-      }
-
-      return false;
-    }
-  }
-
-  Future<dynamic> getUserData() async {
-    try {
-      var result = await channel.invokeMethod("getData", {});
-      if (kDebugMode) {
-        print("user data---$result");
-      }
-
-      if (result != null) {
-        return result;
-      }
-    } on PlatformException catch (e) {
-      //Handle error
-      if (kDebugMode) {
-        print(e);
-      }
-      return e;
-    }
-  }
-
-  Future<dynamic> logout() async {
-    try {
-      dynamic result = await channel.invokeMethod("logout");
-
-      if (kDebugMode) {
-        print("logout---$result");
-      }
-
-      if (result != null) {
-        return result;
-      } else {
-        return result;
-      }
-    } on PlatformException catch (e) {
-      //Handle error
-      return false;
-    }
-  }
-
-  Future<dynamic> deleteUser() async {
-    try {
-      var result = await channel.invokeMethod("deleteUser");
-
-      if (kDebugMode) {
-        print("user deleted---$result");
-      }
-
-      if (result != null) {
-        return result;
-      }
-    } on PlatformException catch (e) {
-      //Handle error
-      return false;
-    }
-  }
-
-  Future<dynamic> resetPassword(String email) async {
-    try {
-      if (kDebugMode) {
-        print(email);
-      }
-      var result =
-          await channel.invokeMethod("resetPassword", {"email": email});
-
-      if (kDebugMode) {
-        print("reset password---$result");
-      }
-
-      if (result != null) {
-        return result;
-      }
-    } on PlatformException catch (e) {
-      if (kDebugMode) {
-        print("reset password exception---$e");
-      }
-      //Handle error
-      return false;
-    }
-  }
-
-  Future<dynamic> emailVerification() async {
-    try {
-      var result = await channel.invokeMethod("emailVerification");
-
-      if (kDebugMode) {
-        print("email verification---$result");
-      }
-
-      if (result != null) {
-        return result;
-      }
-    } on PlatformException catch (e) {
-      if (kDebugMode) {
-        print("reset password exception---$e");
-      }
-      //Handle error
-      return false;
-    }
-  }
-
-  void _sendEvent() {
-    var eventName = "eventName";
-    var eventParams = {"key1": "value1", "key2": "value2"};
-
-    channel.invokeMethod(
-        "sendEvent", {"eventName": eventName, "eventParams": eventParams});
-  }
 
   /// Login*/
   Future<dynamic> getUserLogin(
       String email, String password, String token) async {
     try {
-      var url = Uri.parse(ApiConstants.baseUrl + ApiConstants.API_LOGIN);
+      var url = Uri.parse(ApiConstants.baseUrl + ApiConstants.apiLogin);
 
       var request = http.MultipartRequest('POST', url);
       if (kDebugMode) {
@@ -179,7 +24,7 @@ class ApiService {
       request.fields.addAll({
         ApiConstants.EMAIL: email,
         ApiConstants.PASSWORD: password,
-        ApiConstants.fcmToken: token
+       // ApiConstants.fcmToken: token
       });
 
       if (kDebugMode) {
@@ -938,13 +783,16 @@ class ApiService {
   }
 
   /// Get Event Dates*/
-  Future<dynamic> getEventDates() async {
+  Future<dynamic> getTestimonialsVideos(String token) async {
     try {
-      var url = Uri.parse(ApiConstants.baseUrl + ApiConstants.API_GET_EVENT);
+      var url = Uri.parse(ApiConstants.baseUrl + ApiConstants.apiTestimonials);
       var request = http.Request('GET', url);
       request.body = '''''';
       //var request = http.StreamedRequest('GET', url);
 
+
+      request.headers['Authorization'] = 'Bearer $token';
+      request.headers['Content-Type'] = 'application/json';
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
       if (kDebugMode) {

@@ -106,8 +106,13 @@ flutter:
      - assets/back_arrow.png
      - assets/like.png
      - assets/testimonial.png
+     - assets/google_plus.png
      - assets/lottery.gif
      - assets/casino.gif
+     - assets/spinner.gif
+     - assets/spiner.gif
+     - assets/trip.jpeg
+     - assets/first.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

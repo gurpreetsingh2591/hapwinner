@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:hap_winner_project/utils/extensions/extensions.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../utils/constant.dart';
-import 'ChildItemWidget.dart';
+import 'TicketItemWidget.dart';
 
 class TestimonialWidget extends StatelessWidget {
   final BoxDecoration decoration;
   final String name;
   final String testimonial;
   final String image;
+  final YoutubePlayerController controller;
   final VoidCallback onTap;
 
   const TestimonialWidget({
@@ -16,6 +18,7 @@ class TestimonialWidget extends StatelessWidget {
     required this.decoration,
     required this.name,
     required this.testimonial,
+    required this.controller,
     required this.image,
   }) : super(key: key);
 
@@ -25,7 +28,18 @@ class TestimonialWidget extends StatelessWidget {
         margin: const EdgeInsets.only(top: 10),
         padding: const EdgeInsets.all(20),
         decoration: kAllCornerBoxDecoration,
-        child: Row(
+        child:YoutubePlayer(
+          controller: controller,
+          showVideoProgressIndicator: true,
+          progressIndicatorColor: Colors.amber,
+          progressColors: const ProgressBarColors(
+            playedColor: Colors.amber,
+            handleColor: Colors.amberAccent,
+          ),
+          onReady: () {
+            //controller.addListener(listener);
+          },
+        ), /*Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -61,6 +75,6 @@ class TestimonialWidget extends StatelessWidget {
               ),
             ]),
           ),
-        ]));
+        ])*/);
   }
 }

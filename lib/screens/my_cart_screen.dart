@@ -3,21 +3,18 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hap_winner_project/bloc/logic_bloc/buy_ticket_bloc.dart';
+import 'package:hap_winner_project/bloc/state/common_state.dart';
 import 'package:hap_winner_project/utils/extensions/extensions.dart';
-import 'package:hap_winner_project/widgets/CommonTextField.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import '../app/router.dart';
 
-import '../bloc/logic_bloc/meeting_bloc.dart';
-import '../bloc/state/meeting_state.dart';
 import '../widgets/ColoredSafeArea.dart';
 import '../utils/constant.dart';
 import '../utils/shared_prefs.dart';
 import '../utils/themes/colors.dart';
-import '../widgets/DrawerWidget.dart';
 import '../widgets/TopBarWidget.dart';
 
 class MyCartPage extends StatefulWidget {
@@ -34,7 +31,7 @@ class MyCartState extends State<MyCartPage> {
   bool isLogin = false;
   List<Map<String, dynamic>> retrievedStudents = [];
   String studentName = "";
-  final meetingBloc = MeetingBloc();
+  final meetingBloc = BuyTicketBloc();
   final _emailText = TextEditingController();
   final _passwordText = TextEditingController();
   final FocusNode _emailFocus = FocusNode();
@@ -74,22 +71,12 @@ class MyCartState extends State<MyCartPage> {
       create: (context) => meetingBloc,
       child: Scaffold(
         key: _scaffoldKey,
-        drawer: SizedBox(
-          width: MediaQuery.of(context).size.width *
-              0.75, // 75% of screen will be occupied
-          child: Drawer(
-            backgroundColor: Colors.white,
-            child: DrawerWidget(
-              contexts: context,
-            ),
-          ), //Drawer
-        ),
         body: ColoredSafeArea(
-          child: BlocBuilder<MeetingBloc, MeetingState>(
+          child: BlocBuilder<BuyTicketBloc, CommonState>(
             builder: (context, state) {
               if (state is LoadingState) {
                 return buildHomeContainer(context, mq);
-              } else if (state is GetOfficeSlotState) {
+              } else if (state is SuccessState) {
                 return buildHomeContainer(context, mq);
               } else if (state is FailureState) {
                 return Center(

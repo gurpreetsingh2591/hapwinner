@@ -8,7 +8,6 @@ import '../state/common_state.dart';
 class LoginBloc extends Bloc<LoginEvent, CommonState> {
   LoginBloc() : super(InitialState()) {
     on<LoginButtonPressed>(_onLoginButtonPressed);
-    on<GetUserDataLogin>(_onGetUserData);
     on<GetUserProfileData>(_onGetUserProfileData);
     on<GetUserProfileDataUpdate>(_onGetUserProfileUpdateData);
     on<GetChangePasswordButtonPressed>(_onGetChangePasswordButtonPressed);
@@ -35,24 +34,6 @@ class LoginBloc extends Bloc<LoginEvent, CommonState> {
     }
   }
 
-  Future<void> _onGetUserData(
-      GetUserDataLogin event, Emitter<CommonState> emit) async {
-    // Handle the Get User Data event
-    emit(LoadingState());
-
-    try {
-      dynamic getUserData = await ApiService().getUserData();
-      // Process the API response
-      // Emit a success state
-      if (kDebugMode) {
-        print(getUserData);
-      }
-      emit(UserDataSuccessState(getUserData));
-    } catch (error) {
-      // Emit a failure state
-      emit(FailureState(error.toString()));
-    }
-  }
 
   /// get user profile data
   Future<void> _onGetUserProfileData(

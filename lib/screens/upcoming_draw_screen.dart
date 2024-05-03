@@ -11,7 +11,7 @@ import 'package:hap_winner_project/widgets/CommonTextField.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../app/router.dart';
 
-import '../bloc/logic_bloc/meeting_bloc.dart';
+import '../bloc/logic_bloc/home_bloc.dart';
 import '../bloc/state/meeting_state.dart';
 import '../widgets/ColoredSafeArea.dart';
 import '../utils/constant.dart';
@@ -34,7 +34,7 @@ class UpComingDrawState extends State<UpComingDrawPage> {
   bool isLogin = false;
   List<Map<String, dynamic>> retrievedStudents = [];
   String studentName = "";
-  final meetingBloc = MeetingBloc();
+  final meetingBloc = HomeBloc();
   final _emailText = TextEditingController();
   final _passwordText = TextEditingController();
   final FocusNode _emailFocus = FocusNode();
@@ -85,7 +85,7 @@ class UpComingDrawState extends State<UpComingDrawPage> {
           ), //Drawer
         ),
         body: ColoredSafeArea(
-          child: BlocBuilder<MeetingBloc, MeetingState>(
+          child: BlocBuilder<HomeBloc, MeetingState>(
             builder: (context, state) {
               if (state is LoadingState) {
                 return buildHomeContainer(context, mq);

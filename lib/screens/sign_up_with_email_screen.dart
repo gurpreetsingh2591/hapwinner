@@ -30,17 +30,19 @@ import '../widgets/CommonTextField.dart';
 import '../widgets/CustomToastWidget.dart';
 import '../widgets/TopBarWidget.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class SignUpWithEmailPage extends StatefulWidget {
+  const SignUpWithEmailPage({Key? key}) : super(key: key);
 
   @override
-  LoginPageState createState() => LoginPageState();
+  SignUpWithEmailState createState() => SignUpWithEmailState();
 }
 
-class LoginPageState extends State<LoginPage> {
+class SignUpWithEmailState extends State<SignUpWithEmailPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _nameText = TextEditingController();
   final _emailText = TextEditingController();
   final _passwordText = TextEditingController();
+  final FocusNode _nameFocus = FocusNode();
   final FocusNode _emailFocus = FocusNode();
   final FocusNode _passwordFocus = FocusNode();
 
@@ -150,7 +152,7 @@ class LoginPageState extends State<LoginPage> {
 
   void login(String userName, String password) {
     bool validEmail = isValidEmail(context, userName);
-     bool validPassword = isValidPassword(context, password);
+    //  bool validPassword = isValidPassword(context, password);
     if (!validEmail) {
       if (userName.isEmpty) {
         toast(AppLocalizations.of(context).translate('enter_email'), true);
@@ -161,7 +163,7 @@ class LoginPageState extends State<LoginPage> {
       emailError = true;
       _emailFocus.requestFocus();
     }
-     else if (!validPassword) {
+    /* else if (!validPassword) {
       _passwordFocus.requestFocus();
       passwordError = true;
       if (password.isEmpty) {
@@ -173,18 +175,12 @@ class LoginPageState extends State<LoginPage> {
         toast(AppLocalizations.of(context).translate('enter_valid_password'),
             true);
       }
-    }
+    }*/
     else {
-
-
-
       passwordError = false;
       emailError = false;
       fcmToken = SharedPrefs().getTokenKey();
-      loginBloc.add(LoginButtonPressed(
-          username: userName, password: password, fcmToken: ""));
-
-     /* if (Platform.isIOS) {
+      if (Platform.isIOS) {
         if (fcmToken != "" || fcmToken != null) {
           loginBloc.add(LoginButtonPressed(
               username: userName, password: password, fcmToken: fcmToken!));
@@ -196,12 +192,12 @@ class LoginPageState extends State<LoginPage> {
           loginBloc.add(LoginButtonPressed(
               username: userName, password: password, fcmToken: fcmToken!));
         }
-      }*/
+      }
     }
   }
 
   userDataAPI(dynamic loginSuccess) {
-    if (loginSuccess['status'] == 401 && !dialogShown) {
+    if (loginSuccess['status'] == "400" && !dialogShown) {
       Future.delayed(Duration.zero, () {
         dialogShown = true;
         showCustomToast();
@@ -223,7 +219,7 @@ class LoginPageState extends State<LoginPage> {
       passwordError = false;
       emailError = false;
 
-      /*SharedPrefs().setUserFullName(userData['result']['studentname']);
+      SharedPrefs().setUserFullName(userData['result']['studentname']);
       SharedPrefs().setUserEmail(userData['result']['vchmomemail']);
       SharedPrefs().setStudentId(userData['result']['studentid']);
       SharedPrefs().setParentId(userData['result']['parentid']);
@@ -246,7 +242,7 @@ class LoginPageState extends State<LoginPage> {
       if (kDebugMode) {
         print("studentList---${userData['students_list']}");
         print("student---$students");
-      }*/
+      }
 
       SharedPrefs().setIsLogin(true);
       Future.delayed(Duration.zero, () {
@@ -292,22 +288,67 @@ class LoginPageState extends State<LoginPage> {
           body: BlocBuilder<LoginBloc, CommonState>(
             builder: (context, state) {
               if (state is LoadingState) {
-                return buildHomeContainer(context, mq,true);
+                return loaderBar(context, mq);
               } else if (state is SuccessState) {
                 userDataAPI(state.response);
-                return buildHomeContainer(context, mq,false);
-              }  else if (state is FailureState) {
-                return buildHomeContainer(context, mq,false);
+                return buildHomeContainer(context, mq);
+              } else if (state is UserDataSuccessState) {
+                getUserData(state.response);
+                return buildHomeContainer(context, mq);
+              } else if (state is FailureState) {
+                return buildHomeContainer(context, mq);
               }
-              return buildHomeContainer(context, mq,false);
+              return buildHomeContainer(context, mq);
             },
           ),
         ));
   }
 
+  Widget loaderBar(BuildContext context, Size mq) {
+    return Container(
+      constraints: const BoxConstraints.expand(),
+      decoration: boxImageBgDecoration(),
+      child: Stack(
+        children: [
+          Container(
+            margin:
+                const EdgeInsets.only(bottom: 20, top: 40, left: 32, right: 32),
+            child: ListView(
+              shrinkWrap: true,
+              primary: false,
+              children: [
+                Center(
+                  child: Image.asset(
+                    "assets/app_logo.png",
+                    scale: 3,
+                  ),
+                ),
+                buildSignInContainer(context, mq),
+              ],
+            ),
+          ),
+          Container(
+            height: 500,
+            margin: const EdgeInsets.only(bottom: 20, top: 80),
+            child: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Center(
+                    child: SpinKitFadingCircle(
+                  color: kLightGray,
+                  size: 80.0,
+                ))
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-  Widget buildHomeContainer(BuildContext context, Size mq, bool isLoader) {
-    return Stack(children: [Container(
+  Widget buildHomeContainer(BuildContext context, Size mq) {
+    return Container(
       decoration: boxImageBgDecoration(),
       padding: const EdgeInsets.only(left: 30, right: 30, top: 80, bottom: 30),
       constraints: const BoxConstraints.expand(),
@@ -319,29 +360,10 @@ class LoginPageState extends State<LoginPage> {
               scale: 3,
             ),
           ),
-          50.height,
+          30.height,
           buildSignInContainer(context, mq),
         ],
       ),
-    ),
-      Visibility(
-          visible: isLoader,
-          child: Container(
-        height: 500,
-        margin: const EdgeInsets.only(bottom: 20, top: 80),
-        child: const Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Center(
-                child: SpinKitFadingCircle(
-                  color: kLightGray,
-                  size: 80.0,
-                ))
-          ],
-        ),
-      ))
-    ]
     );
   }
 
@@ -353,6 +375,22 @@ class LoginPageState extends State<LoginPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               40.height,
+              CommonTextField(
+                controller: _nameText,
+                hintText: "Name",
+                text: "",
+                isFocused: false,
+                textColor: Colors.black,
+                focus: _nameFocus,
+                textSize: 16,
+                weight: FontWeight.w400,
+                hintColor: Colors.black26,
+                error: emailError,
+                wrongError: wrongError,
+                decoration: kEditTextDecoration,
+                padding: 0,
+              ),
+              20.height,
 
               CommonTextField(
                 controller: _emailText,
@@ -406,14 +444,11 @@ class LoginPageState extends State<LoginPage> {
                 alignment: Alignment.center,
                 child: ElevatedButton(
                     onPressed: () {
-                      if (kDebugMode) {
-                        print("object");
-                      }
-                     /* Future.delayed(Duration.zero, () {
+                      Future.delayed(Duration.zero, () {
                         context.go(Routes.mainHome);
-                      });*/
+                      });
                       //dialogShown = false;
-                      login(_emailText.text.trim().toString(), _passwordText.text.trim().toString());
+                      //login(_emailText.text.trim().toString(), _passwordText.text.trim().toString());
                     },
                     style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
@@ -422,43 +457,23 @@ class LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Flexible(
-                          child: Text("Login".allInCaps,
+                          child: Text("Signup".allInCaps,
                               style: textStyle(
                                   Colors.white, 16, 0.5, FontWeight.w400)),
                         ),
                       ],
                     )),
               ),
-              10.height,
+
+              40.height,
               InkWell(
                 onTap: () async {},
-                child: Container(
-                  margin: const EdgeInsets.all(10),
-                  alignment: Alignment.topRight,
-                  child: const Text("Forgot Password?",
-                      textAlign: TextAlign.right,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          letterSpacing: 0.5,
-                          fontWeight: FontWeight.w400,
-                          fontFamily: 'poppins')),
-                ),
-              ),
-              20.height,
-              InkWell(
-                onTap: () async {
-                  Future.delayed(Duration.zero, () {
-                    context.push(Routes.signup);
-                  });
-                },
                 child: Container(
                   margin: const EdgeInsets.all(10),
                   alignment: Alignment.center,
                   child: const Text("If you have not account? Signup",
                       textAlign: TextAlign.right,
                       style: TextStyle(
-
                           color: Colors.black,
                           fontSize: 18,
                           letterSpacing: 0,

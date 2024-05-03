@@ -30,14 +30,14 @@ import '../widgets/CommonTextField.dart';
 import '../widgets/CustomToastWidget.dart';
 import '../widgets/TopBarWidget.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class SignUpPage extends StatefulWidget {
+  const SignUpPage({Key? key}) : super(key: key);
 
   @override
-  LoginPageState createState() => LoginPageState();
+  SignUpPageState createState() => SignUpPageState();
 }
 
-class LoginPageState extends State<LoginPage> {
+class SignUpPageState extends State<SignUpPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _emailText = TextEditingController();
   final _passwordText = TextEditingController();
@@ -150,7 +150,7 @@ class LoginPageState extends State<LoginPage> {
 
   void login(String userName, String password) {
     bool validEmail = isValidEmail(context, userName);
-     bool validPassword = isValidPassword(context, password);
+    //  bool validPassword = isValidPassword(context, password);
     if (!validEmail) {
       if (userName.isEmpty) {
         toast(AppLocalizations.of(context).translate('enter_email'), true);
@@ -161,7 +161,7 @@ class LoginPageState extends State<LoginPage> {
       emailError = true;
       _emailFocus.requestFocus();
     }
-     else if (!validPassword) {
+    /* else if (!validPassword) {
       _passwordFocus.requestFocus();
       passwordError = true;
       if (password.isEmpty) {
@@ -173,18 +173,12 @@ class LoginPageState extends State<LoginPage> {
         toast(AppLocalizations.of(context).translate('enter_valid_password'),
             true);
       }
-    }
+    }*/
     else {
-
-
-
       passwordError = false;
       emailError = false;
       fcmToken = SharedPrefs().getTokenKey();
-      loginBloc.add(LoginButtonPressed(
-          username: userName, password: password, fcmToken: ""));
-
-     /* if (Platform.isIOS) {
+      if (Platform.isIOS) {
         if (fcmToken != "" || fcmToken != null) {
           loginBloc.add(LoginButtonPressed(
               username: userName, password: password, fcmToken: fcmToken!));
@@ -196,12 +190,12 @@ class LoginPageState extends State<LoginPage> {
           loginBloc.add(LoginButtonPressed(
               username: userName, password: password, fcmToken: fcmToken!));
         }
-      }*/
+      }
     }
   }
 
   userDataAPI(dynamic loginSuccess) {
-    if (loginSuccess['status'] == 401 && !dialogShown) {
+    if (loginSuccess['status'] == "400" && !dialogShown) {
       Future.delayed(Duration.zero, () {
         dialogShown = true;
         showCustomToast();
@@ -223,7 +217,7 @@ class LoginPageState extends State<LoginPage> {
       passwordError = false;
       emailError = false;
 
-      /*SharedPrefs().setUserFullName(userData['result']['studentname']);
+      SharedPrefs().setUserFullName(userData['result']['studentname']);
       SharedPrefs().setUserEmail(userData['result']['vchmomemail']);
       SharedPrefs().setStudentId(userData['result']['studentid']);
       SharedPrefs().setParentId(userData['result']['parentid']);
@@ -246,7 +240,7 @@ class LoginPageState extends State<LoginPage> {
       if (kDebugMode) {
         print("studentList---${userData['students_list']}");
         print("student---$students");
-      }*/
+      }
 
       SharedPrefs().setIsLogin(true);
       Future.delayed(Duration.zero, () {
@@ -292,22 +286,67 @@ class LoginPageState extends State<LoginPage> {
           body: BlocBuilder<LoginBloc, CommonState>(
             builder: (context, state) {
               if (state is LoadingState) {
-                return buildHomeContainer(context, mq,true);
+                return loaderBar(context, mq);
               } else if (state is SuccessState) {
                 userDataAPI(state.response);
-                return buildHomeContainer(context, mq,false);
-              }  else if (state is FailureState) {
-                return buildHomeContainer(context, mq,false);
+                return buildHomeContainer(context, mq);
+              } else if (state is UserDataSuccessState) {
+                getUserData(state.response);
+                return buildHomeContainer(context, mq);
+              } else if (state is FailureState) {
+                return buildHomeContainer(context, mq);
               }
-              return buildHomeContainer(context, mq,false);
+              return buildHomeContainer(context, mq);
             },
           ),
         ));
   }
 
+  Widget loaderBar(BuildContext context, Size mq) {
+    return Container(
+      constraints: const BoxConstraints.expand(),
+      decoration: boxImageBgDecoration(),
+      child: Stack(
+        children: [
+          Container(
+            margin:
+                const EdgeInsets.only(bottom: 20, top: 40, left: 32, right: 32),
+            child: ListView(
+              shrinkWrap: true,
+              primary: false,
+              children: [
+                Center(
+                  child: Image.asset(
+                    "assets/splash_logo.png",
+                    scale: 3,
+                  ),
+                ),
+                buildSignInContainer(context, mq),
+              ],
+            ),
+          ),
+          Container(
+            height: 500,
+            margin: const EdgeInsets.only(bottom: 20, top: 80),
+            child: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Center(
+                    child: SpinKitFadingCircle(
+                  color: kLightGray,
+                  size: 80.0,
+                ))
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-  Widget buildHomeContainer(BuildContext context, Size mq, bool isLoader) {
-    return Stack(children: [Container(
+  Widget buildHomeContainer(BuildContext context, Size mq) {
+    return Container(
       decoration: boxImageBgDecoration(),
       padding: const EdgeInsets.only(left: 30, right: 30, top: 80, bottom: 30),
       constraints: const BoxConstraints.expand(),
@@ -323,151 +362,106 @@ class LoginPageState extends State<LoginPage> {
           buildSignInContainer(context, mq),
         ],
       ),
-    ),
-      Visibility(
-          visible: isLoader,
-          child: Container(
-        height: 500,
-        margin: const EdgeInsets.only(bottom: 20, top: 80),
-        child: const Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Center(
-                child: SpinKitFadingCircle(
-                  color: kLightGray,
-                  size: 80.0,
-                ))
-          ],
-        ),
-      ))
-    ]
     );
   }
 
   Widget buildSignInContainer(BuildContext context, Size mq) {
     return Align(
-        alignment: Alignment.topLeft,
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              40.height,
-
-              CommonTextField(
-                controller: _emailText,
-                hintText: "Email",
-                text: "",
-                isFocused: false,
-                textColor: Colors.black,
-                focus: _emailFocus,
-                textSize: 16,
-                weight: FontWeight.w400,
-                hintColor: Colors.black26,
-                error: emailError,
-                wrongError: wrongError,
-                decoration: kEditTextDecoration,
-                padding: 0,
-              ),
-              20.height,
-              Stack(children: [
-                CommonPasswordTextField(
-                  controller: _passwordText,
-                  hintText: "Password",
-                  text: "",
-                  isFocused: false,
-                  textColor: Colors.black,
-                  focus: _passwordFocus,
-                  textSize: 16,
-                  weight: FontWeight.w400,
-                  hintColor: Colors.black26,
-                  obscurePassword: _obscurePassword,
-                  error: passwordError,
-                  wrongError: wrongError,
+      alignment: Alignment.topLeft,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          30.height,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+            height: 50,
+            decoration: kFaceBookBoxDecoration,
+            child: Row(
+              children: [
+                Flexible(
+                  flex: 1,
+                  child: Image.asset("assets/facebook.png"),
                 ),
-                Container(
-                  margin: const EdgeInsets.only(top: 13, right: 10),
-                  alignment: Alignment.centerRight,
-                  child: GestureDetector(
-                    onTap: _togglePasswordVisibility,
-                    child: Icon(
-                      _obscurePassword
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                      color: kBaseColor,
+                Flexible(
+                    flex: 4,
+                    child: Container(
+                        alignment: Alignment.center,
+                        child: Text(
+                          "Sign up with Facebook",
+                          style:
+                              textStyle(Colors.white, 20, 0, FontWeight.normal),
+                        )))
+              ],
+            ),
+          ),
+          20.height,
+          Container(
+            height: 50,
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 5),
+            decoration: kGoogleBoxDecoration,
+            child: Row(
+              children: [
+                Flexible(
+                  flex: 1,
+                  child: Image.asset("assets/google_plus.png"),
+                ),
+                Flexible(
+                  flex: 4,
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Sign up with Google",
+                      style: textStyle(Colors.white, 20, 0, FontWeight.normal),
                     ),
                   ),
-                ),
-              ]),
-              40.height,
-              Container(
-                decoration: kButtonBoxDecorationEmpty,
-                height: 50,
+                )
+              ],
+            ),
+          ),
+          50.height,
+          InkWell(
+            onTap: () async {
+              Future.delayed(Duration.zero, () {
+                context.push(Routes.signupWithEmail);
+              });
+            },
+            child: Container(
+              height: 50,
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 5),
+              decoration: kEmailBoxDecoration,
+              child: Container(
                 alignment: Alignment.center,
-                child: ElevatedButton(
-                    onPressed: () {
-                      if (kDebugMode) {
-                        print("object");
-                      }
-                     /* Future.delayed(Duration.zero, () {
-                        context.go(Routes.mainHome);
-                      });*/
-                      //dialogShown = false;
-                      login(_emailText.text.trim().toString(), _passwordText.text.trim().toString());
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Flexible(
-                          child: Text("Login".allInCaps,
-                              style: textStyle(
-                                  Colors.white, 16, 0.5, FontWeight.w400)),
-                        ),
-                      ],
-                    )),
-              ),
-              10.height,
-              InkWell(
-                onTap: () async {},
-                child: Container(
-                  margin: const EdgeInsets.all(10),
-                  alignment: Alignment.topRight,
-                  child: const Text("Forgot Password?",
-                      textAlign: TextAlign.right,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          letterSpacing: 0.5,
-                          fontWeight: FontWeight.w400,
-                          fontFamily: 'poppins')),
+                child: Text(
+                  "Sign up with Email",
+                  style: textStyle(Colors.white, 20, 0, FontWeight.normal),
                 ),
               ),
-              20.height,
-              InkWell(
-                onTap: () async {
-                  Future.delayed(Duration.zero, () {
-                    context.push(Routes.signup);
-                  });
-                },
-                child: Container(
-                  margin: const EdgeInsets.all(10),
-                  alignment: Alignment.center,
-                  child: const Text("If you have not account? Signup",
-                      textAlign: TextAlign.right,
-                      style: TextStyle(
-
-                          color: Colors.black,
-                          fontSize: 18,
-                          letterSpacing: 0,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'poppins')),
-                ),
-              ),
-              20.height,
-
-            ]));
+            ),
+          ),
+          40.height,
+          20.height,
+          InkWell(
+            onTap: () async {
+              Future.delayed(Duration.zero, () {
+                context.push(Routes.signIn);
+              });
+            },
+            child: Container(
+              margin: const EdgeInsets.all(10),
+              alignment: Alignment.center,
+              child: const Text("If you have an account? Login",
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      letterSpacing: 0,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'poppins')),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -336,12 +336,15 @@ final kTicketDecoration = BoxDecoration(
   color: kBaseColor,
   borderRadius: BorderRadius.circular(15),
 );
+final kWinnerDecoration = BoxDecoration(
+  color: kFacebookColor,
+  borderRadius: BorderRadius.circular(5),
+);
 const kPIBgDecoration = BoxDecoration(
   color: appHpGreen,
 );
 final kDialogBgDecoration = BoxDecoration(
-  color: kDialogBgColor,
-  border: Border.all(color: kTrans),
+  border: Border.all(color: appBaseColor),
   borderRadius: BorderRadius.circular(15),
 );
 
@@ -356,21 +359,17 @@ final kGradientBoxDecoration = BoxDecoration(
   borderRadius: BorderRadius.circular(10),
 );
 
-final kButtonBoxDecoration = BoxDecoration(
-  gradient: const LinearGradient(
-    colors: [appBaseColor, appBaseColor],
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-  ),
+final kFaceBookBoxDecoration = BoxDecoration(
+  color: kFacebookColor,
   borderRadius: BorderRadius.circular(5),
 );
-final kDisabledButtonBoxDecoration = BoxDecoration(
-  gradient: const LinearGradient(
-    colors: [kDisabledButtonColor, kDisabledButtonColor],
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-  ),
-  borderRadius: BorderRadius.circular(5),
+final kGoogleBoxDecoration = BoxDecoration(
+    color: kGoogleColor,
+    borderRadius: BorderRadius.circular(5)
+);
+final kEmailBoxDecoration = BoxDecoration(
+    color: kDisabledButtonColor,
+    borderRadius: BorderRadius.circular(5)
 );
 final kButtonBoxDecorationEmpty = BoxDecoration(
   gradient: const LinearGradient(

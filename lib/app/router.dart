@@ -2,6 +2,8 @@ import 'package:go_router/go_router.dart';
 import 'package:hap_winner_project/screens/buy_ticket_screen.dart';
 import 'package:hap_winner_project/screens/home_screen.dart';
 import 'package:hap_winner_project/screens/my_cart_screen.dart';
+import 'package:hap_winner_project/screens/sign_up_with_email_screen.dart';
+import 'package:hap_winner_project/screens/signup_screen.dart';
 import 'package:hap_winner_project/screens/upcoming_draw_screen.dart';
 
 import '../screens/login_screen.dart';
@@ -16,7 +18,8 @@ class Routes {
   static const signIn = '/';
   static const forgotPassword = '/forgot_password';
   static const upcomingContest = '/upcoming_contest';
-  static const deviceInfo = '/device-info';
+  static const signup = '/signup';
+  static const signupWithEmail = '/signup_with_email';
 
   static const accountInfo = '/account-info';
   static const pairFailed = '/pair-failed';
@@ -53,9 +56,17 @@ GoRouter buildRouter() {
       GoRoute(
         path: Routes.myCart,
         builder: (_, __) => const MyCartPage(),
-      ),GoRoute(
+      ),
+      GoRoute(
         path: Routes.upcomingContest,
         builder: (_, __) => const UpComingDrawPage(),
+      ),
+      GoRoute(
+        path: Routes.signup,
+        builder: (_, __) => const SignUpPage(),
+      ),      GoRoute(
+        path: Routes.signupWithEmail,
+        builder: (_, __) => const SignUpWithEmailPage(),
       ),
      /* GoRoute(
         path: Routes.changePassword,
