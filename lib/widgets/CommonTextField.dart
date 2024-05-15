@@ -15,6 +15,8 @@ class CommonTextField extends StatelessWidget {
   final FontWeight weight;
   final bool error;
   final bool wrongError;
+  final bool leftIcon;
+  final bool enable;
   final BoxDecoration decoration;
   final double padding;
 
@@ -34,6 +36,8 @@ class CommonTextField extends StatelessWidget {
     required this.wrongError,
     required this.decoration,
     required this.padding,
+    required this.leftIcon,
+    required this.enable,
   }) : super(key: key);
 
   @override
@@ -49,17 +53,19 @@ class CommonTextField extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Flexible(
-              flex: 1,
-              child: SizedBox(
-                width: 40,
-                child: Image.asset(
-                  "assets/user_icon.png",
-                  color: Colors.grey,
-                  scale: 3,
-                ),
-              ),
-            ),
+            leftIcon
+                ? Flexible(
+                    flex: 1,
+                    child: SizedBox(
+                      width: 40,
+                      child: Image.asset(
+                        "assets/user_icon.png",
+                        color: Colors.grey,
+                        scale: 3,
+                      ),
+                    ),
+                  )
+                : const SizedBox(),
             Flexible(
               flex: 8,
               child: TextFormField(
@@ -68,6 +74,7 @@ class CommonTextField extends StatelessWidget {
                 keyboardType: TextInputType.emailAddress,
                 enableSuggestions: false,
                 autocorrect: autocorrect,
+                enabled: enable,
                 controller: controller,
                 maxLength: 30,
                 cursorColor: Colors.black,

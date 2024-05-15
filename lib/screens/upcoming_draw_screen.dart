@@ -1,22 +1,14 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hap_winner_project/utils/extensions/extensions.dart';
-import 'package:hap_winner_project/widgets/CommonTextField.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
-import '../app/router.dart';
-
 import '../bloc/logic_bloc/home_bloc.dart';
-import '../bloc/state/meeting_state.dart';
+import '../bloc/state/home_state.dart';
 import '../widgets/ColoredSafeArea.dart';
 import '../utils/constant.dart';
 import '../utils/shared_prefs.dart';
-import '../utils/themes/colors.dart';
 import '../widgets/DrawerWidget.dart';
 import '../widgets/TopBarWidget.dart';
 
@@ -56,7 +48,6 @@ class UpComingDrawState extends State<UpComingDrawPage> {
   getStudentList() async {
     retrievedStudents.clear();
 
-    retrievedStudents = await SharedPrefs().getStudents();
 
     if (kDebugMode) {
       print(retrievedStudents);
@@ -85,11 +76,11 @@ class UpComingDrawState extends State<UpComingDrawPage> {
           ), //Drawer
         ),
         body: ColoredSafeArea(
-          child: BlocBuilder<HomeBloc, MeetingState>(
+          child: BlocBuilder<HomeBloc, HomeState>(
             builder: (context, state) {
               if (state is LoadingState) {
                 return buildHomeContainer(context, mq);
-              } else if (state is GetOfficeSlotState) {
+              } else if (state is GetTestimonialsState) {
                 return buildHomeContainer(context, mq);
               } else if (state is FailureState) {
                 return Center(

@@ -2,12 +2,18 @@ import 'package:go_router/go_router.dart';
 import 'package:hap_winner_project/screens/buy_ticket_screen.dart';
 import 'package:hap_winner_project/screens/home_screen.dart';
 import 'package:hap_winner_project/screens/my_cart_screen.dart';
+import 'package:hap_winner_project/screens/my_profile.dart';
+import 'package:hap_winner_project/screens/my_tickets_wins.dart';
 import 'package:hap_winner_project/screens/sign_up_with_email_screen.dart';
 import 'package:hap_winner_project/screens/signup_screen.dart';
 import 'package:hap_winner_project/screens/upcoming_draw_screen.dart';
+import 'package:hap_winner_project/widgets/OtpTimer.dart';
 
 import '../screens/login_screen.dart';
-
+import '../screens/my_past_tickets.dart';
+import '../screens/my_tickets.dart';
+import '../screens/otp_verification_page.dart';
+import '../screens/thank_you_screen.dart';
 
 class Routes {
   // static const selectionPage = '/';
@@ -20,6 +26,12 @@ class Routes {
   static const upcomingContest = '/upcoming_contest';
   static const signup = '/signup';
   static const signupWithEmail = '/signup_with_email';
+  static const thankYouPage = '/thank_you';
+  static const otpVerify = '/otp_verify';
+  static const myTicketsPage = '/my_tickets';
+  static const myWinTicketsPage = '/my_win_tickets';
+  static const myPastTicketsPage = '/my_past_tickets';
+  static const myProfilePage = '/my_profile';
 
   static const accountInfo = '/account-info';
   static const pairFailed = '/pair-failed';
@@ -53,10 +65,10 @@ GoRouter buildRouter() {
         path: Routes.buyTickets,
         builder: (_, __) => const BuyTicketsPage(),
       ),
-      GoRoute(
+      /* GoRoute(
         path: Routes.myCart,
         builder: (_, __) => const MyCartPage(),
-      ),
+      ),*/
       GoRoute(
         path: Routes.upcomingContest,
         builder: (_, __) => const UpComingDrawPage(),
@@ -64,11 +76,49 @@ GoRouter buildRouter() {
       GoRoute(
         path: Routes.signup,
         builder: (_, __) => const SignUpPage(),
-      ),      GoRoute(
+      ),
+      GoRoute(
         path: Routes.signupWithEmail,
         builder: (_, __) => const SignUpWithEmailPage(),
       ),
-     /* GoRoute(
+      GoRoute(
+        path: Routes.thankYouPage,
+        builder: (_, __) => const ThankYouPage(),
+      ),
+      GoRoute(
+        path: Routes.myTicketsPage,
+        builder: (_, __) => const MyTicketsPage(),
+      ),
+      GoRoute(
+        path: Routes.myWinTicketsPage,
+        builder: (_, __) => const MyTicketsWinsPage(),
+      ),
+      GoRoute(
+        path: Routes.myPastTicketsPage,
+        builder: (_, __) => const MyPastTicketsPage(),
+      ),
+      GoRoute(
+        path: Routes.myProfilePage,
+        builder: (_, __) => const MyProfilePage(),
+      ),
+      GoRoute(
+        path: Routes.otpVerify,
+        name: "otpVerify",
+        builder: (context, state) => OtpVerificationScreen(
+          userId: state.queryParameters['id']!,
+          userType: state.queryParameters['type']!,
+        ),
+      ),
+      GoRoute(
+        path: Routes.myCart,
+        name: "myCart",
+        builder: (context, state) => MyCartPage(
+          ticketList: state.queryParameters['list']!,
+          lotteryId: state.queryParameters['lotteryId']!,
+        ),
+      ),
+
+      /* GoRoute(
         path: Routes.changePassword,
         builder: (_, __) => const ForgotPasswordPage(),
       ),
@@ -133,7 +183,6 @@ GoRouter buildRouter() {
         builder: (_, __) => const ProfilePage(),
       ),
 */
-
     ],
   );
 }

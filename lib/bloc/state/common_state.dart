@@ -42,43 +42,9 @@ class UserEmailVerificationSuccessState extends CommonState {
 
   const UserEmailVerificationSuccessState(this.response);
 }
-class ReminderListState extends CommonState {
+class SocialLoginState extends CommonState {
   final dynamic response;
 
-  const ReminderListState(this.response);
-}
-class SetReminderListState extends CommonState {
-  final dynamic response;
-
-  const SetReminderListState(this.response);
-}
-class AlreadySetReminderListState extends CommonState {
-  final dynamic response;
-  const AlreadySetReminderListState(this.response);
-}
-class GetEventsListState extends CommonState {
-  final dynamic response;
-
-  const GetEventsListState(this.response);
-}
-class GetProfileDataState extends CommonState {
-  final dynamic response;
-
-  const GetProfileDataState(this.response);
-}
-class GetUpdateProfileDataState extends CommonState {
-  final dynamic response;
-
-  const GetUpdateProfileDataState(this.response);
+  const SocialLoginState(this.response);
 }
 
-class GetStudentPhotosState extends CommonState {
-  final dynamic response;
-
-  const GetStudentPhotosState(this.response);
-}
-class GetChangePasswordState extends CommonState {
-  final dynamic response;
-
-  const GetChangePasswordState(this.response);
-}

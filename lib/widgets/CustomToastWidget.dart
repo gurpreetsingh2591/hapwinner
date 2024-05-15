@@ -37,13 +37,11 @@ class CustomToastWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Text(
-                AppLocalizations.of(context)
-                    .translate(msg),
+               msg,
                 style: textStyle(Colors.white, 14, 0.5, FontWeight.w400),
               ),
               Text(
-                AppLocalizations.of(context)
-                    .translate(email),
+                email,
                 style: textStyle(Colors.white, 14, 0.5, FontWeight.w400),
               ),
             ],

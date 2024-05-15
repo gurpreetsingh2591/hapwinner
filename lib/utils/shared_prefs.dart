@@ -21,23 +21,20 @@ class SharedPrefs {
   static SharedPreferences? _prefs;
 
   static const String _tokenKey = '_tokenKey',
-      _userEmail = '_userEmail',
-      _onBoardingCompleted = '_onBoardingCompleted',
       _isLogin = '_isLogin',
-      _verificationStatus = '_verificationStatus',
       _isSignUp = '_isSignUp',
       _userId = '_userId',
-      _parentId = '_parentId',
+      _userToken = '_userToken',
+      _userEmail = '_userEmail',
       _userFullName = '_userFullName',
-      _studentMomName = '_studentMomName',
-      _studentCount = '_studentCount',
       _userDOB = '_userDOB',
       _userPhone = '_userPhone',
       _deviceId = '_deviceId',
-      _oneDeviceAdded = '_oneDeviceAdded',
-      _kLanguageCodeKey = 'languageCode',
-      _kStudentKey = 'StudentKey',
-      _isDeviceAdd = '_isDeviceAdd';
+      _userState = '_userState',
+      _userCountry = '_userCountry',
+      _userPinCode = '_userPinCode',
+      _userAddress = '_userAddress',
+      _userCity = '_userCity';
 
   ///* User SignIn/SignUp Detail*/
   Future<bool> setIsLogin([bool isLogin = false]) =>
@@ -70,24 +67,15 @@ class SharedPrefs {
 
   String? getUserFullName() => _prefs!.getString(_userFullName);
 
-  Future<bool> setStudentId(String userId) => _prefs!.setString(_userId, userId);
+  Future<bool> setStudentId(String userId) =>
+      _prefs!.setString(_userId, userId);
 
   String? getStudentId() => _prefs!.getString(_userId);
 
-  Future<bool> setParentId(String parentId) =>
-      _prefs!.setString(_parentId, parentId);
+  Future<bool> setUserToken(String userToken) =>
+      _prefs!.setString(_userToken, userToken);
 
-  String? getParentId() => _prefs!.getString(_parentId);
-
-  Future<bool> setStudentMomName(String studentMomName) =>
-      _prefs!.setString(_studentMomName, studentMomName);
-
-  String? getStudentMomName() => _prefs!.getString(_studentMomName);
-
-  Future<bool> setStudentCount(String studentCount) =>
-      _prefs!.setString(_studentCount, studentCount);
-
-  String? getStudentMomCount() => _prefs!.getString(_studentCount);
+  String? getUserToken() => _prefs!.getString(_userToken);
 
   Future<bool> setUserDob(String userDOB) =>
       _prefs!.setString(_userDOB, userDOB);
@@ -103,48 +91,33 @@ class SharedPrefs {
 
   ///------
 
+  Future<bool> setUserAddress(String userAddress) =>
+      _prefs!.setString(_userAddress, userAddress);
+
+  String? getUserAddress() => _prefs!.getString(_userAddress);
+
+  Future<bool> setUserCity(String city) => _prefs!.setString(_userCity, city);
+
+  String? getUserCity() => _prefs!.getString(_userCity);
+
   Future<bool> setDeviceId(String deviceId) =>
       _prefs!.setString(_deviceId, deviceId);
 
   String? getDeviceId() => _prefs!.getString(_deviceId);
 
-  ///---set/get locale code
-  Locale getLocale() {
-    final languageCode = _prefs?.getString(_kLanguageCodeKey) ?? 'en';
-    return Locale(languageCode, '');
-  }
+  Future<bool> setState(String state) => _prefs!.setString(_userState, state);
 
-  Future<void> setLocale(String languageCode) async {
-    await _prefs?.setString(_kLanguageCodeKey, languageCode);
-  }
+  String? getUserState() => _prefs!.getString(_userState);
 
+  Future<bool> setCountry(String country) =>
+      _prefs!.setString(_userCountry, country);
 
+  String? getUserCountry() => _prefs!.getString(_userCountry);
 
+  Future<bool> setUserPinCode(String pinCode) =>
+      _prefs!.setString(_userPinCode, pinCode);
 
-
-  // Save the JSON array as a string in shared preferences
-   Future<void> saveStudents(List<Map<String, dynamic>> students) async {
-    final prefs = await SharedPreferences.getInstance();
-    final studentsJson = jsonEncode(students);
-    await prefs.setString(_kStudentKey, studentsJson);
-  }
-
-  // Retrieve the JSON array string from shared preferences
-   Future<List<Map<String, dynamic>>> getStudents() async {
-    final prefs = await SharedPreferences.getInstance();
-    final studentsJson = prefs.getString(_kStudentKey);
-
-    if (studentsJson != null) {
-      final students = jsonDecode(studentsJson) as List;
-      return students.cast<Map<String, dynamic>>();
-    } else {
-      return [];
-    }
-  }
-
-
-
-
+  String? getUserPinCode() => _prefs!.getString(_userPinCode);
 
   Future reset() async {
     Future<SharedPreferences> prefs0 = SharedPreferences.getInstance();

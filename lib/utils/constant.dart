@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hap_winner_project/utils/themes/colors.dart';
 
+import '../bloc/logic_bloc/login_bloc.dart';
+
+final loginBloc = LoginBloc();
+
 ///Fcm Strings
 const String kCollectionId = "hp_printer";
 const channel = MethodChannel('HpPhotoBooth');
@@ -115,56 +119,18 @@ final List<Map<String, String>> languages = [
   {'code': 'ja', 'name': '中文 (简体)'},
   {'code': 'ko', 'name': '中文 (繁體)'},
 ];
-
-final dynamic dashboardList = [
-  {
-    'name': 'Lunch Menu',
-    'image': 'assets/icons/menu_list.png',
-  },
-  {
-    'name': 'Snack Menu',
-    'image': 'assets/icons/food.png',
-  },
-  {
-    'name': 'School Calender',
-    'image': 'assets/icons/calender.png',
-  },
-  {
-    'name': 'Message From School',
-    'image': 'assets/icons/message_from_school.png',
-  },
-  {
-    'name': 'Meeting with Teacher',
-    'image': 'assets/icons/meeting_with_teacher.png',
-  },
-  {
-    'name': 'Meeting with Office',
-    'image': 'assets/icons/meeting_with_office.png',
-  },
-  {
-    'name': 'Message to Office',
-    'image': 'assets/icons/message_to_office.png',
-  },
-  {
-    'name': 'Message to Teacher',
-    'image': 'assets/icons/message_to_teacher.png',
-  },
-  {
-    'name': 'Photos',
-    'image': 'assets/icons/meeting_with_office.png',
-  },
-  {
-    'name': 'Work in Progress',
-    'image': 'assets/icons/message_to_teacher.png',
-  },
-  {
-    'name': 'Settings',
-    'image': 'assets/icons/calender.png',
-  },
-  {
-    'name': 'Switch Child',
-    'image': 'assets/icons/exchange_child.png',
-  },
+// List of items for the drop-down
+final List<String> dropdownItems = [
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+  '10'
 ];
 ThemeData dialogTheme = ThemeData(
   dialogBackgroundColor: Colors.white, // Change the background color as needed
@@ -176,16 +142,6 @@ ThemeData dialogTheme = ThemeData(
     textTheme: ButtonTextTheme.primary, // Button text color
   ),
 );
-List<String> photos = [
-  "https://kmschool.observer.school/uploads/Sustainability-and-DFT-300x300.png",
-  "https://kmschool.observer.school/uploads/1360x768-5634774-peaky-blinders-wallpapers.jpg",
-  "https://kmschool.observer.school/uploads/earthmap.png",
-  "https://kmschool.observer.school/uploads/white-chrysler-300-tbkd9gtlc4x9vbor.jpg",
-  "https://kmschool.observer.school/uploads/Sustainability-and-DFT-300x300.png",
-  "https://kmschool.observer.school/uploads/1360x768-5634774-peaky-blinders-wallpapers.jpg",
-  "https://kmschool.observer.school/uploads/earthmap.png",
-  "https://kmschool.observer.school/uploads/white-chrysler-300-tbkd9gtlc4x9vbor.jpg"
-];
 
 List<String> tickets = [
   "5656457",
@@ -262,8 +218,8 @@ extension StringExtension on String {
 
 const statusBarGradient = LinearGradient(
   colors: <Color>[
-    kBaseColor,
-    kBaseColor,
+    appBaseColor,
+    appBaseColor,
   ],
   stops: [0.5, 1.5],
 );
@@ -279,7 +235,7 @@ final kEditLineDecoration = BoxDecoration(
 
 const circleRedBox = BoxDecoration(
   shape: BoxShape.circle, // This property makes the container circular
-  color: red, // Set your desired background color
+  color: darkRed, // Set your desired background color
 );
 const circleYellowBox = BoxDecoration(
   shape: BoxShape.circle, // This property makes the container circular
@@ -324,6 +280,11 @@ final kEditTextDecoration = BoxDecoration(
   border: Border.all(color: gray),
   borderRadius: BorderRadius.circular(5),
 );
+final kEditText1Decoration = BoxDecoration(
+  border: Border(
+    bottom: BorderSide(width: 1.0, color: Colors.grey), // Specify the color and width of the bottom border
+  ),
+);
 
 BoxDecoration kButtonBgDecoration = BoxDecoration(
   color: appBaseColor,
@@ -336,6 +297,10 @@ final kTicketDecoration = BoxDecoration(
   color: kBaseColor,
   borderRadius: BorderRadius.circular(15),
 );
+final kSelectedTicketDecoration = BoxDecoration(
+  color: kCircleColor,
+  borderRadius: BorderRadius.circular(15),
+);
 final kWinnerDecoration = BoxDecoration(
   color: kFacebookColor,
   borderRadius: BorderRadius.circular(5),
@@ -344,7 +309,7 @@ const kPIBgDecoration = BoxDecoration(
   color: appHpGreen,
 );
 final kDialogBgDecoration = BoxDecoration(
-  border: Border.all(color: appBaseColor),
+  border: Border.all(color: Colors.white),
   borderRadius: BorderRadius.circular(15),
 );
 
@@ -355,22 +320,18 @@ final kDialogBgDecorationSecondary = BoxDecoration(
 );
 
 final kGradientBoxDecoration = BoxDecoration(
-  gradient: const LinearGradient(colors: [kBaseLightColor, kBaseColor]),
-  borderRadius: BorderRadius.circular(10),
+  gradient: const LinearGradient(colors: [blue, indigo, purple]),
+  borderRadius: BorderRadius.circular(5),
 );
 
 final kFaceBookBoxDecoration = BoxDecoration(
   color: kFacebookColor,
-  borderRadius: BorderRadius.circular(5),
+  borderRadius: BorderRadius.circular(25),
 );
-final kGoogleBoxDecoration = BoxDecoration(
-    color: kGoogleColor,
-    borderRadius: BorderRadius.circular(5)
-);
+final kGoogleBoxDecoration =
+    BoxDecoration(color: kGoogleColor, borderRadius: BorderRadius.circular(25));
 final kEmailBoxDecoration = BoxDecoration(
-    color: kDisabledButtonColor,
-    borderRadius: BorderRadius.circular(5)
-);
+    color: kDisabledButtonColor, borderRadius: BorderRadius.circular(5));
 final kButtonBoxDecorationEmpty = BoxDecoration(
   gradient: const LinearGradient(
     colors: [kBaseColor, kBaseColor2],
@@ -392,7 +353,6 @@ const kBlackButtonBoxDecoration = BoxDecoration(
       width: 2.0, // Specify the width of the stroke
     ),
   ),
-
 );
 
 final kAllCornerBoxDecoration = BoxDecoration(

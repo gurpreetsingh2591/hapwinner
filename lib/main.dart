@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hap_winner_project/screens/buy_ticket_screen.dart';
 import 'package:hap_winner_project/utils/shared_prefs.dart';
 import 'package:hap_winner_project/utils/themes/colors.dart';
 import 'package:provider/provider.dart';
@@ -13,16 +14,12 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Upgrader.clearSavedSettings();
   try {
-
-
     SharedPrefs.init(await SharedPreferences.getInstance());
   } catch (e) {
     if (kDebugMode) {
       print("Firebase initialization error: $e");
     }
   }
-
-
 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -43,16 +40,11 @@ Future<void> main() async {
         ),
         debugShowCheckedModeBanner: false,
         home: UpgradeAlert(
-              dialogStyle: UpgradeDialogStyle.cupertino,
-              child: const Scaffold(
-                body: MyApp(),
-              )),
-
-
+          dialogStyle: UpgradeDialogStyle.cupertino,
+          child: ChangeNotifierProvider(
+            create: (_) => DropDownState(),
+            child: const MyApp(),
+          ),
+        ),
       )));
-
-
 }
-
-
-

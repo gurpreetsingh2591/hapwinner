@@ -1,19 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import '../utils/constant.dart';
 
+import '../utils/themes/colors.dart';
 
 class OtpTimer extends StatefulWidget {
   final int timeInSec;
   final Function onTimerEnd;
   final GlobalKey<OtpTimerState> key;
-  final Color textColor;
-  final String extraText;
-  final String frontText;
 
   const OtpTimer(
-      {required this.timeInSec , required this.onTimerEnd, required this.key, required this.textColor, required this.extraText, required this.frontText})
+      {this.timeInSec = 30, required this.onTimerEnd, required this.key})
       : super(key: key);
 
   @override
@@ -21,12 +18,12 @@ class OtpTimer extends StatefulWidget {
 }
 
 class OtpTimerState extends State<OtpTimer> {
-  late int currentSecond;
-  late Timer timer;
+  late int _currentSecond;
+  late Timer _timer;
 
   @override
   void initState() {
-    currentSecond = widget.timeInSec;
+    _currentSecond = widget.timeInSec;
     startTimer();
     super.initState();
   }
@@ -34,17 +31,21 @@ class OtpTimerState extends State<OtpTimer> {
   @override
   Widget build(BuildContext context) {
     return Text(
-      '${widget.frontText}$currentSecond ${widget.extraText}',
-      style: textStyle(widget.textColor, 16, 0, FontWeight.w400),
+      '00:$_currentSecond',
+      style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+          fontFamily: 'DPClear',
+          color: accent),
     );
   }
 
   void startTimer() {
-    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
-        currentSecond--;
+        _currentSecond--;
       });
-      if (currentSecond == 0) {
+      if (_currentSecond == 0) {
         stopTimer();
         widget.onTimerEnd();
       }
@@ -52,7 +53,7 @@ class OtpTimerState extends State<OtpTimer> {
   }
 
   void stopTimer() {
-    timer.cancel();
+    _timer.cancel();
   }
 
   @override
@@ -63,7 +64,7 @@ class OtpTimerState extends State<OtpTimer> {
 
   void restartTimer() {
     setState(() {
-      currentSecond = widget.timeInSec;
+      _currentSecond = widget.timeInSec;
     });
     startTimer();
   }

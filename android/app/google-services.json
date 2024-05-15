@@ -1,0 +1,38 @@
+{
+  "project_info": {
+    "project_number": "345667665744",
+    "project_id": "hapwinner",
+    "storage_bucket": "hapwinner.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:345667665744:android:94d3afe4b8048ddbb27655",
+        "android_client_info": {
+          "package_name": "com.hapwinner.hap_winner_project"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "345667665744-bolrat26cheob2d0mcvdginsmsbl99t8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hapwinner.hap_winner_project",
+            "certificate_hash": "936d45af8351ce9d8cd16e44e838ece1f6b84cca"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArk9goKJHGTnviICQhNgo9eI7MiWb62Ik"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

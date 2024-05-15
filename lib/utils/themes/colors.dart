@@ -34,6 +34,12 @@ const appSecondaryColor = Color(0xff75D6FF);
 const appRegularTextColor = Color(0xff8D8D8D);
 const appRegularDropdownColor = Color(0xffF5F5F5);
 const connectedTextColor = Color(0xffA3A3A3);
+const blue = Color(0xff0d6efd);
+const indigo = Color(0xff6610f2);
+const purple = Color(0xff6f42c1);
+const pink = Color(0xffd63384);
+const red = Color(0xffdc3545);
+const orange = Color(0xfffd7e14);
 
 
 const appBaseColor = Color(0xff0c1133);
@@ -268,8 +274,7 @@ const accent = Color(0xffac42fe);
 const green = Color(0xff5be845);
 const accentLight = Color(0x67ac42fe);
 const gray = Color(0xffe5e4e4);
-const red = Color(0x84ff0000);
-const blue = Color(0x99239DFD);
+const darkRed = Color(0x84ff0000);
 const miti = Color(0x80fa6309);
 const yellow = Color(0x80ffe30a);
 const greenTrans = Color(0x805be845);

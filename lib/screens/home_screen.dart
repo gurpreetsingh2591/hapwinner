@@ -1,23 +1,31 @@
 import 'dart:async';
 import 'package:bottom_bar_matu/bottom_bar/bottom_bar_bubble.dart';
 import 'package:bottom_bar_matu/bottom_bar_item.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hap_winner_project/screens/profile_screen.dart';
+import 'package:hap_winner_project/data/api/api_constants.dart';
+import 'package:hap_winner_project/model/TestimonialModel.dart';
 import 'package:hap_winner_project/utils/extensions/extensions.dart';
 import 'package:hap_winner_project/widgets/ProfilePageWidget.dart';
 import 'package:hap_winner_project/widgets/TestimonialWidget.dart';
+import 'package:provider/provider.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../app/router.dart';
 
+import '../bloc/event/home_event.dart';
 import '../bloc/logic_bloc/home_bloc.dart';
-import '../bloc/state/meeting_state.dart';
+import '../bloc/state/home_state.dart';
+import '../model/HomeApiResponse.dart';
+import '../model/LotteryData.dart';
+import '../model/LotteryDetail.dart';
+import '../model/PreviousMonthWinner.dart';
 import '../widgets/TicketItemWidget.dart';
 import '../widgets/ColoredSafeArea.dart';
 import '../utils/constant.dart';
@@ -41,35 +49,141 @@ class HomePageState extends State<HomePage> {
   bool isLogin = false;
   List<Map<String, dynamic>> retrievedStudents = [];
   String studentName = "";
-  final testimonialBloc = HomeBloc();
+  final homeBloc = HomeBloc();
   final PageController controller = PageController();
   bool index1 = true;
   bool index2 = false;
   bool index3 = false;
   bool index4 = false;
-  final List<String> _videoUrlList = [
-    'https://youtu.be/dWs3dzj4Wng',
-    'https://www.youtube.com/watch?v=668nUCeBHyY',
-    'https://youtu.be/S3npWREXr8s',
-  ];
+  final List<String> _videoUrlList = [];
+  final List<String> nameList = [];
+  final List<Testimonial> videoList = [];
+  List<PreviousMonthWinner> previousMonthWinnerList = [];
 
   List<YoutubePlayerController> lYTC = [];
-
+  String lotteryHeading = "";
+  String lotteryName = "";
+  String bannerImage = "";
+  String previousBannerImage = "";
+  String lotteryPrice = "";
   Map<String, dynamic> cStates = {};
+  String month = "";
+  String lotteryEndDate = "2024-05-28T12:00:00";
+
+  late Timer _timer;
+  Duration _difference = Duration.zero;
 
   @override
   void initState() {
     super.initState();
-
+// Calculate initial difference
+    // Update difference every second
+    _timer =
+        Timer.periodic(Duration(seconds: 1), (_) => _calculateDifference());
     initializePreference().whenComplete(() {
       isLogin = SharedPrefs().isLogin();
     });
 
+    homeBloc.add(
+        GetTestimonialsVideo(token: SharedPrefs().getUserToken().toString()));
+    homeBloc.add(GetHomeData(token: SharedPrefs().getUserToken().toString()));
     setState(() {
       studentName = SharedPrefs().getUserFullName().toString();
     });
-    getStudentList();
-    fillYTlists();
+
+    var now = DateTime.now();
+    var formatter = DateFormat('MMM');
+    month = formatter.format(now);
+
+    _calculateDifference();
+  }
+
+  void _calculateDifference() {
+    final DateTime now = DateTime.now();
+    DateTime dateTime = DateTime.parse(lotteryEndDate);
+
+    //final DateTime endDate = DateTime(dateTime);
+
+    setState(() {
+      _difference = dateTime.difference(now);
+    });
+  }
+
+  setHomeData(dynamic homaData) {
+    // if (kDebugMode) {
+    //   print("homaData--$homaData");
+    // }
+
+    var lotteryDetail =
+        LotteryDetail.fromJson(homaData['data']['lottry_detail']);
+    lotteryHeading = lotteryDetail
+        .heading; //homaData['data']['lottry_detail']['lottery_heading'];
+    lotteryName =
+        lotteryDetail.name; //homaData['data']['lottry_detail']['lottery_name'];
+    bannerImage = lotteryDetail
+        .bannerImage; //homaData['data']['lottry_detail']['lottery_name'];
+    lotteryPrice = homaData['data']['lottry_price'].toString();
+    lotteryEndDate =
+        homaData['data']['lottry_detail']['lottery_end_date'].toString();
+    /* var previousMonthWinners = (homaData['data']['privousmonthwinners'] as List)
+        .map((item) => PreviousMonthWinner.fromJson(item))
+        .toList();*/
+    var previousList = homaData['data']['privousmonthwinners'];
+
+    previousMonthWinnerList = (previousList as List)
+        .map((item) => PreviousMonthWinner.fromJson(item))
+        .toList();
+    if (previousMonthWinnerList.isNotEmpty) {
+      previousBannerImage =
+          previousMonthWinnerList[0].lotteryDetail.bannerImage.toString();
+    }
+
+    /* for(int i=0;i<previousMonthWinners.length;i++) {
+      previousMonthWinnerList.add(previousMonthWinners[i]);
+    }*/
+    /*try {
+      final response = HomeApiResponse<LotteryData>.fromJson(
+        homaData,
+        (dataJson) => LotteryData.fromJson(dataJson),
+      );
+
+      print("Status: ${response.status}");
+      print("Message: ${response.message}");
+      print("Lottery Price: ${response.data.lotteryPrice}");
+    } catch (e) {
+      print("Error occurred: $e");
+    }*/
+  }
+
+  setTestimonialVideoData(dynamic testimonials) {
+    _videoUrlList.clear();
+    videoList.clear();
+    if (kDebugMode) {
+      print("object--$testimonials");
+    }
+
+    try {
+      var testimonialsResponse = TestimonialResponse.fromJson(testimonials);
+      int status = testimonialsResponse.status;
+      String message = testimonialsResponse.message;
+      if (status == 200) {
+        videoList.addAll(testimonialsResponse.testimonials);
+        _videoUrlList.clear();
+        for (int i = 0; i < videoList.length; i++) {
+          _videoUrlList
+              .add(videoList[i].videoLink.split("embed/")[1].split("?")[0]);
+          nameList.add(videoList[i].title);
+        }
+        if (kDebugMode) {
+          print(_videoUrlList);
+        }
+        fillYTlists();
+      } else {}
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+    }
   }
 
   fillYTlists() {
@@ -99,15 +213,6 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  getStudentList() async {
-    retrievedStudents.clear();
-
-    retrievedStudents = await SharedPrefs().getStudents();
-
-    if (kDebugMode) {
-      print(retrievedStudents);
-    }
-  }
 
   Future<void> initializePreference() async {
     SharedPrefs.init(await SharedPreferences.getInstance());
@@ -117,9 +222,19 @@ class HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context).size;
     return BlocProvider(
-        create: (context) => testimonialBloc,
+        create: (context) => homeBloc,
         child: Scaffold(
             key: _scaffoldKey,
+            drawer: SizedBox(
+              width: MediaQuery.of(context).size.width *
+                  0.75, // 75% of screen will be occupied
+              child: Drawer(
+                backgroundColor: Colors.white,
+                child: DrawerWidget(
+                  contexts: context,
+                ),
+              ), //Drawer
+            ),
             body: Stack(children: [
               Container(
                 margin: const EdgeInsets.only(bottom: 80),
@@ -155,11 +270,17 @@ class HomePageState extends State<HomePage> {
                   children: <Widget>[
                     Center(
                       child: ColoredSafeArea(
-                        child: BlocBuilder<HomeBloc, MeetingState>(
+                        child: BlocBuilder<HomeBloc, HomeState>(
                           builder: (context, state) {
                             if (state is LoadingState) {
                               return buildHomeContainer(context, mq, true);
-                            } else if (state is GetOfficeSlotState) {
+                            } else if (state is GetHomeState) {
+                              setHomeData(state.response);
+
+                              return buildHomeContainer(context, mq, false);
+                            } else if (state is GetTestimonialsState) {
+                              setTestimonialVideoData(state.response);
+
                               return buildHomeContainer(context, mq, false);
                             } else if (state is FailureState) {
                               return Center(
@@ -173,11 +294,11 @@ class HomePageState extends State<HomePage> {
                     ),
                     Center(
                       child: ColoredSafeArea(
-                        child: BlocBuilder<HomeBloc, MeetingState>(
+                        child: BlocBuilder<HomeBloc, HomeState>(
                           builder: (context, state) {
                             if (state is LoadingState) {
                               return buildWinnerContainer(context, mq, true);
-                            } else if (state is GetOfficeSlotState) {
+                            } else if (state is GetTestimonialsState) {
                               return buildWinnerContainer(context, mq, false);
                             } else if (state is FailureState) {
                               return Center(
@@ -191,12 +312,14 @@ class HomePageState extends State<HomePage> {
                     ),
                     Center(
                       child: ColoredSafeArea(
-                        child: BlocBuilder<HomeBloc, MeetingState>(
+                        child: BlocBuilder<HomeBloc, HomeState>(
                           builder: (context, state) {
                             if (state is LoadingState) {
                               return buildTestimonialContainer(
                                   context, mq, true);
-                            } else if (state is GetOfficeSlotState) {
+                            } else if (state is GetTestimonialsState) {
+                              setTestimonialVideoData(state.response);
+
                               return buildTestimonialContainer(
                                   context, mq, false);
                             } else if (state is FailureState) {
@@ -212,24 +335,18 @@ class HomePageState extends State<HomePage> {
                     ),
                     Center(
                       child: ColoredSafeArea(
-                        child: BlocBuilder<HomeBloc, MeetingState>(
+                        child: BlocBuilder<HomeBloc, HomeState>(
                           builder: (context, state) {
                             if (state is LoadingState) {
-                              return ProfilePageWidget(
-                                onTap: () {},
-                              );
-                            } else if (state is GetOfficeSlotState) {
-                              return ProfilePageWidget(
-                                onTap: () {},
-                              );
+                              return buildProfileContainer(context, mq, true);
+                            } else if (state is GetTestimonialsState) {
+                              return buildProfileContainer(context, mq, false);
                             } else if (state is FailureState) {
                               return Center(
                                 child: Text('Error: ${state.error}'),
                               );
                             }
-                            return ProfilePageWidget(
-                              onTap: () {},
-                            );
+                            return buildProfileContainer(context, mq, false);
                           },
                         ),
                       ),
@@ -380,6 +497,7 @@ class HomePageState extends State<HomePage> {
             )));
   }
 
+  ///Home Container
   Widget buildHomeContainer(BuildContext context, Size mq, bool loading) {
     return Container(
         constraints: const BoxConstraints.expand(),
@@ -391,11 +509,13 @@ class HomePageState extends State<HomePage> {
               alignment: Alignment.center,
               decoration: kTopBarDecoration,
               child: TopBarWidget(
-                onTapLeft: () {},
-                leftIcon: 'assets/back_arrow.png',
+                onTapLeft: () {
+                  _scaffoldKey.currentState?.openDrawer();
+                },
+                leftIcon: 'assets/menu.png',
                 title: 'Home',
-                leftVisibility: false,
-                screen: 'buy_ticket',
+                leftVisibility: true,
+                screen: 'home',
               )),
           Container(
             margin: const EdgeInsets.only(top: 60),
@@ -428,6 +548,7 @@ class HomePageState extends State<HomePage> {
         ]));
   }
 
+  ///Winner container
   Widget buildWinnerContainer(BuildContext context, Size mq, bool loading) {
     return Container(
         decoration: kTopBarDecoration,
@@ -441,31 +562,30 @@ class HomePageState extends State<HomePage> {
                 alignment: Alignment.center,
                 decoration: kTopBarDecoration,
                 child: TopBarWidget(
-                  onTapLeft: () {},
-                  leftIcon: 'assets/back_arrow.png',
+                  onTapLeft: () {
+                    _scaffoldKey.currentState?.openDrawer();
+                  },
+                  leftIcon: 'assets/menu.png',
                   title: 'Winners',
-                  leftVisibility: false,
+                  leftVisibility: true,
                   screen: 'buy_ticket',
                 )),
             Container(
               padding: const EdgeInsets.all(15),
               margin: const EdgeInsets.only(top: 50),
-              child: ListView.builder(
-                shrinkWrap: true,
-                primary: false,
-                itemCount: 1,
-                itemBuilder: (BuildContext context, int index) {
-                  return WinnerWidget(
-                    onTap: () {},
-                    decoration: kAllCornerBoxDecoration,
-                  );
-                },
-              ),
+              child: ListView(shrinkWrap: true, primary: false, children: [
+                WinnerWidget(
+                  onTap: () {},
+                  decoration: kAllCornerBoxDecoration,
+                  list: previousMonthWinnerList,
+                )
+              ]),
             ),
           ],
         ));
   }
 
+  ///Testimonial
   Widget buildTestimonialContainer(
       BuildContext context, Size mq, bool loading) {
     return Container(
@@ -478,10 +598,12 @@ class HomePageState extends State<HomePage> {
             alignment: Alignment.center,
             decoration: kTopBarDecoration,
             child: TopBarWidget(
-              onTapLeft: () {},
-              leftIcon: 'assets/back_arrow.png',
+              onTapLeft: () {
+                _scaffoldKey.currentState?.openDrawer();
+              },
+              leftIcon: 'assets/menu.png',
               title: 'Testimonials',
-              leftVisibility: false,
+              leftVisibility: true,
               screen: 'buy_ticket',
             ),
           ),
@@ -490,14 +612,13 @@ class HomePageState extends State<HomePage> {
             child: ListView.builder(
               shrinkWrap: true,
               primary: false,
-              itemCount: 3,
+              itemCount: _videoUrlList.length,
               itemBuilder: (BuildContext context, int index) {
                 YoutubePlayerController _ytController = lYTC[index];
 
-
                 return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Column( children: [
+                    child: Column(children: [
                       Container(
                         height: 220.0,
                         decoration: const BoxDecoration(
@@ -505,10 +626,10 @@ class HomePageState extends State<HomePage> {
                           borderRadius: BorderRadius.all(Radius.circular(12)),
                         ),
                         child: ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                              topRight: Radius.circular(12),
-                              topLeft: Radius.circular(12),
-                            ),
+                          borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(12),
+                            topLeft: Radius.circular(12),
+                          ),
                           child: YoutubePlayer(
                             controller: _ytController,
                             showVideoProgressIndicator: true,
@@ -528,7 +649,6 @@ class HomePageState extends State<HomePage> {
                         ),
                       ),
                       Container(
-
                         padding: const EdgeInsets.all(10),
                         width: double.infinity,
                         decoration: BoxDecoration(
@@ -539,16 +659,19 @@ class HomePageState extends State<HomePage> {
                           ),
                         ),
                         child: Row(children: [
-                        ClipRRect(
-                        borderRadius: const BorderRadius.all(Radius.circular(20)
-                      ),child: Image.asset(
-                            "assets/testimonial.png",
-                            scale: 7,
-                          ),),
+                          ClipRRect(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(20)),
+                            child: Image.asset(
+                              "assets/testimonial.png",
+                              scale: 7,
+                            ),
+                          ),
                           20.width,
-                           Text(
-                            "Katrina ",
-                            style: textStyle(Colors.white, 22, 0, FontWeight.normal),
+                          Text(
+                            nameList[index].toString(),
+                            style: textStyle(
+                                Colors.white, 18, 0, FontWeight.normal),
                           ),
                         ]),
                       ),
@@ -566,7 +689,15 @@ class HomePageState extends State<HomePage> {
         ]));
   }
 
+  ///Contest Detail
   Widget buildContestContainer(BuildContext context, Size mq) {
+    // Calculate remaining hours, minutes, and seconds
+    // Calculate remaining days and hours
+    int remainingDays = _difference.inDays;
+    int remainingHours = _difference.inHours.remainder(24);
+    int remainingMinutes = _difference.inMinutes.remainder(60);
+    int remainingSeconds = _difference.inSeconds.remainder(60);
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -575,14 +706,107 @@ class HomePageState extends State<HomePage> {
         Stack(children: [
           SizedBox(
             width: mq.width,
-            child: Image.asset("assets/home_top_image.png"),
+            child: Image.asset("assets/home_imge.jpg"),
+          ),
+/*          Container(
+              margin: const EdgeInsets.only(top: 50),
+              alignment: Alignment.bottomRight,
+              child: Image.network(
+                ApiConstants.baseUrlAssets + bannerImage,
+                scale: 3,
+                fit: BoxFit.fill,
+                loadingBuilder: (BuildContext context, Widget child,
+                    ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: Container(
+                      margin: const EdgeInsets.only(left: 50),
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.all(5),
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                            loadingProgress.expectedTotalBytes!
+                            : null,
+                        valueColor:
+                        const AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    ),
+                  );
+                },
+              ))*/
+          Container(
+            margin: const EdgeInsets.only(top: 50),
+            alignment: Alignment.bottomRight,
+            child: Image.network(
+              ApiConstants.baseUrlAssets + bannerImage,
+              scale: 4,
+            ),
           ),
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-            child: Image.asset(
-              "assets/splash_logo.png",
-              scale: 4,
-            ),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  /* Container(
+                    width: 100,
+                    padding: const EdgeInsets.all(10),
+                    decoration: kButtonBgDecoration,
+                    alignment: Alignment.topLeft,
+                    child: Image.asset(
+                      'assets/logo.png',
+                    ),
+                  ),*/
+                  Text(
+                    lotteryHeading,
+                    style: textStyle(Colors.white, 14, 0, FontWeight.w400),
+                  ),
+                  10.height,
+                  Text(
+                    "$month month contest".allInCaps,
+                    style: textStyle(Colors.yellow, 14, 0, FontWeight.w400),
+                  ),
+                  10.height,
+                  Text(
+                    lotteryName,
+                    style: textStyle(Colors.white, 18, 0, FontWeight.w500),
+                  ),
+                  10.height,
+                  Text(
+                    "Rs. $lotteryPrice Per ticket",
+                    style: textStyle(Colors.white, 18, 0, FontWeight.w500),
+                  ),
+                  Text(
+                    "Buy Contest tickets to get a chance to win",
+                    style: textStyle(Colors.white, 10, 0, FontWeight.w400),
+                  ),
+                  10.height,
+                  Container(
+                      width: 150,
+                      decoration: kButtonBoxDecorationEmpty,
+                      height: 40,
+                      alignment: Alignment.center,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (kDebugMode) {
+                            print("object");
+                          }
+                          Future.delayed(Duration.zero, () {
+                            context.push(Routes.buyTickets);
+                          });
+                          //dialogShown = false;
+                          //login(_emailText.text.trim().toString(), _passwordText.text.trim().toString());
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent),
+                        child: Text("Buy Tickets".allInCaps,
+                            textAlign: TextAlign.center,
+                            style: textStyle(
+                                Colors.white, 12, 0, FontWeight.w400)),
+                      ))
+                ]),
           )
         ]),
         Container(
@@ -600,7 +824,7 @@ class HomePageState extends State<HomePage> {
                   style: textStyle(Colors.white, 18, 0, FontWeight.w500),
                 ),
                 Text(
-                  "April Month Contest Draw",
+                  "$month Month Contest Draw",
                   style: textStyle(Colors.white, 16, 0, FontWeight.normal),
                 ),
                 15.height,
@@ -618,14 +842,15 @@ class HomePageState extends State<HomePage> {
                     ),
                     10.height,
                     Text(
-                      "15d | 05h | 45m | 34s",
-                      style: textStyle(Colors.white, 16, 0, FontWeight.w500),
+                      "${remainingDays}d | ${remainingHours}h | ${remainingMinutes}m | ${remainingSeconds}s",
+                      //"15d | 05h | 45m | 34s",
+                      style: textStyle(Colors.white, 18, 0, FontWeight.w500),
                     ),
                   ],
                 ),
                 25.height,
                 Text(
-                  "Rs. 100 Per Ticket",
+                  "Rs.$lotteryPrice Per Ticket",
                   style: textStyle(Colors.white, 18, 0, FontWeight.w500),
                 ),
                 15.height,
@@ -635,29 +860,23 @@ class HomePageState extends State<HomePage> {
                   height: 50,
                   alignment: Alignment.center,
                   child: ElevatedButton(
-                      onPressed: () {
-                        if (kDebugMode) {
-                          print("object");
-                        }
-                        Future.delayed(Duration.zero, () {
-                          context.push(Routes.buyTickets);
-                        });
-                        //dialogShown = false;
-                        //login(_emailText.text.trim().toString(), _passwordText.text.trim().toString());
-                      },
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Flexible(
-                            child: Text("Buy Tickets".allInCaps,
-                                style: textStyle(
-                                    Colors.white, 16, 0.5, FontWeight.w400)),
-                          ),
-                        ],
-                      )),
+                    onPressed: () {
+                      if (kDebugMode) {
+                        print("object");
+                      }
+                      Future.delayed(Duration.zero, () {
+                        context.push(Routes.buyTickets);
+                      });
+                      //dialogShown = false;
+                      //login(_emailText.text.trim().toString(), _passwordText.text.trim().toString());
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent),
+                    child: Text("Buy Tickets".allInCaps,
+                        style:
+                            textStyle(Colors.white, 16, 0.5, FontWeight.w400)),
+                  ),
                 )
               ],
             ),
@@ -760,8 +979,8 @@ class HomePageState extends State<HomePage> {
                 style: textStyle(Colors.white, 18, 0, FontWeight.w400),
               ),
               15.height,
-              Image.asset(
-                "assets/trip.jpeg",
+              Image.network(
+                ApiConstants.baseUrlAssets + previousBannerImage,
                 scale: 2,
               ),
               20.height,
@@ -771,43 +990,251 @@ class HomePageState extends State<HomePage> {
                 height: 50,
                 alignment: Alignment.center,
                 child: ElevatedButton(
-                    onPressed: () {
-                      if (kDebugMode) {
-                        print("object");
-                      }
+                  onPressed: () {
+                    if (kDebugMode) {
+                      print("object");
+                    }
 
-                      setState(() {
-                        index1 = false;
-                        index2 = true;
-                        index3 = false;
-                        index4 = false;
-                        controller.jumpToPage(1);
-                      });
-                      /*Future.delayed(Duration.zero, () {
+                    setState(() {
+                      index1 = false;
+                      index2 = true;
+                      index3 = false;
+                      index4 = false;
+                      controller.jumpToPage(1);
+                    });
+                    /*Future.delayed(Duration.zero, () {
                         context.push(Routes.upcomingContest);
                       });*/
-                      //dialogShown = false;
-                      //login(_emailText.text.trim().toString(), _controllerpasswordText.text.trim().toString());
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Flexible(
-                          child: Text("See Previous Contest Winners".allInCaps,
-                              textAlign: TextAlign.center,
-                              style: textStyle(
-                                  Colors.white, 16, 0, FontWeight.w400)),
-                        ),
-                      ],
-                    )),
+                    //dialogShown = false;
+                    //login(_emailText.text.trim().toString(), _controllerpasswordText.text.trim().toString());
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent),
+                  child: Text("See Previous Winners".allInCaps,
+                      textAlign: TextAlign.center,
+                      style: textStyle(Colors.white, 16, 0, FontWeight.w400)),
+                ),
               )
             ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget buildProfileContainer(BuildContext context, Size mq, bool loading) {
+    return Container(
+        constraints: const BoxConstraints.expand(),
+        child: Stack(children: [
+          Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              height: 60,
+              width: mq.width,
+              alignment: Alignment.center,
+              decoration: kTopBarDecoration,
+              child: TopBarWidget(
+                onTapLeft: () {
+                  _scaffoldKey.currentState?.openDrawer();
+                },
+                leftIcon: 'assets/menu.png',
+                title: 'Home',
+                leftVisibility: true,
+                screen: 'Profile',
+              )),
+          Container(
+            height: mq.height,
+            color: appBaseColor,
+            margin: const EdgeInsets.only(top: 50),
+            child: ListView(
+              shrinkWrap: true,
+              primary: false,
+              children: [
+                buildProfile(context, mq),
+              ],
+            ),
+          ),
+          Visibility(
+            visible: loading,
+            child: Container(
+              height: 500,
+              margin: const EdgeInsets.only(bottom: 20, top: 80),
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Center(
+                      child: SpinKitFadingCircle(
+                    color: kLightGray,
+                    size: 80.0,
+                  ))
+                ],
+              ),
+            ),
+          ),
+        ]));
+  }
+
+  Widget buildProfile(BuildContext context, Size mq) {
+    return Container(
+      margin: const EdgeInsets.only(top: 20),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          InkWell(
+            onTap: () {
+              Future.delayed(Duration.zero, () {
+                context.push(Routes.myTicketsPage);
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: kGradientBoxDecoration,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    height: 50,
+                    child: Text(
+                      "My Tickets",
+                      style: textStyle(Colors.white, 22, 0, FontWeight.normal),
+                    ),
+                  ),
+                  const SizedBox(height: 50, child: Icon(Icons.arrow_forward)),
+                ],
+              ),
+            ),
+          ),
+          15.height,
+          InkWell(
+            onTap: () {
+              Future.delayed(Duration.zero, () {
+                context.push(Routes.myProfilePage);
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: kGradientBoxDecoration,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    height: 50,
+                    child: Text(
+                      "My Profile",
+                      style: textStyle(Colors.white, 22, 0, FontWeight.normal),
+                    ),
+                  ),
+                  const SizedBox(height: 50, child: Icon(Icons.arrow_forward)),
+                ],
+              ),
+            ),
+          ),
+          15.height,
+          InkWell(
+            onTap: () {
+              Future.delayed(Duration.zero, () {
+                context.push(Routes.myWinTicketsPage);
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: kGradientBoxDecoration,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    height: 50,
+                    child: Text(
+                      "My Wins",
+                      style: textStyle(Colors.white, 22, 0, FontWeight.normal),
+                    ),
+                  ),
+                  const SizedBox(height: 50, child: Icon(Icons.arrow_forward)),
+                ],
+              ),
+            ),
+          ),
+          15.height,
+          InkWell(
+            onTap: () {
+              Future.delayed(Duration.zero, () {
+                context.push(Routes.myPastTicketsPage);
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: kGradientBoxDecoration,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    height: 50,
+                    child: Text(
+                      "My Past Tickets",
+                      style: textStyle(Colors.white, 22, 0, FontWeight.normal),
+                    ),
+                  ),
+                  const SizedBox(height: 50, child: Icon(Icons.arrow_forward)),
+                ],
+              ),
+            ),
+          ),
+          15.height,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            decoration: kGradientBoxDecoration,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  alignment: Alignment.centerLeft,
+                  height: 50,
+                  child: Text(
+                    "Delete Account",
+                    style: textStyle(Colors.white, 22, 0, FontWeight.normal),
+                  ),
+                ),
+                const SizedBox(height: 50, child: Icon(Icons.arrow_forward)),
+              ],
+            ),
+          ),
+          15.height,
+          InkWell(
+            onTap: () {
+              // Navigator.pop(context);
+              SharedPrefs().setIsLogin(false);
+              SharedPrefs().reset();
+
+              context.go(Routes.signIn);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: kGradientBoxDecoration,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    height: 50,
+                    child: Text(
+                      "Logout",
+                      style: textStyle(Colors.white, 22, 0, FontWeight.normal),
+                    ),
+                  ),
+                  const SizedBox(height: 50, child: Icon(Icons.arrow_forward)),
+                ],
+              ),
+            ),
+          )
+        ],
+      ),
     );
   }
 }

@@ -18,7 +18,7 @@ class SignUpBloc extends Bloc<SignUpEvent, CommonState> {
 
     try {
       // Process the API response
-      dynamic response = await ApiService().getUserLogin(event.userEmail.trim(),event.password,event.firstName.trim() );
+      dynamic response = await ApiService().getUserSignUp(event.userEmail.trim());
 
       // Emit a success state
       if (kDebugMode) {

@@ -3,68 +3,51 @@ class ApiConstants {
 
   //Server url
   static String baseUrl = 'https://lottery.netfruxinfotech.com/api/';
-  static String baseUrlAssets = '';
+  static String baseUrlAssets = 'https://lottery.netfruxinfotech.com/public/';
 
 
   // url end point
-  static String usersSignUp = 'signup';
+  static String apiSignUp = 'registerotp';
   static String apiLogin = "login";
+  static String apiLoginOtp = "loginotp";
+  static String apiLoginOtpVerify = "otpvarify";
   static String apiTestimonials = "testimonials";
-  static String API_FORGOT_PASSWORD = "forgot_password";
-  static String API_GET_LUNCH_MENU = "lunchmenu.php";
-  static String API_GET_SNACK_MENU="snackmenu.php";
-  static String API_GET_MESSAGESFROMSCHOOL="msgfromschool.php";
-  static String API_GET_MESSAGESFROMTEACHER="msgfromteacher.php";
-  static String API_GET_MESSAGE_TO_OFFICE_DATA="msgoffice.php";
-  static String API_GET_MESSAGE_TO_TEACHER_DATA="msgteacher.php";
-  static String API_GET_MESSAGE_SENT_TO_TEACHER_LIST="msgsendteacher.php";
-  static String API_GET_MESSAGE_SENT_TO_OFFICE_LIST="msgsendoffice.php";
-  static String API_GET_EVENT="event.php";
-  static String API_GET_TEACHER_TIME_SLOTS="teacher-meeting-timeslots.php";
-  static String API_GET_OFFICE_TIME_SLOTS="office-meeting-timeslots.php";
-  static String API_GET_TEACHER_BOOK_MEETING="bookmeeting";
-  static String API_GET_OFFICE_BOOK_MEETING="bookmeeting-with-office";
-
-  static String API_GET_TEACHER_MEETING_LIST="meetwithteacher";
-  static String API_GET_OFFICE_MEETING_LIST="meetwithoffice";
-  static String API_GET_PARENT_PROFILE="parent-profile.php";
-  static String API_GET_UPDATE_PARENT_PROFILE="update-parent-profile.php";
-  static String API_GET_CHANGE_PASSWORD="change-password.php";
-  static String API_GET_DELETE_MEETING="delete-meeting-with-office.php";
-  static String API_GET_DELETE_MEETING_WITH_TEACHER="delete-meeting-with-teacher.php";
-  static String API_GET_SUBJECT_LIST="get-subject.php";
-  static String API_GET_LESSON_RECORD="get-subject.php?";
-  static String API_GET_PARENT_REMINDER="parent_reminder.php?days=all";
-  static String API_SET_PARENT_REMINDER="parent_reminder.php?student_id=";
-  static String API_SET_ALREADY_PARENT_REMINDER="parent_reminder.php?days=getbyid&student_ids=";
-  static String API_SET_STUDENT_PHOTOS="student-photos.php?student_id=";
-  static String API_GET_DELETE_USER="del-act.php?pid=";
+  static String apiHomepage = "homepage";
+  static String apiTicketList = "ticket_list";
+  static String apiMyTicket = "myticket";
+  static String apiBuyTicket = "tickets";
+  static String apiMyWinTicket = "mywins";
+  static String apiMyPastTicket = "usertickets";
+  static String apiSignupSocial = "signupsocial";
+  static String apiProfileUpdate = "profileupdate";
 
 
 
   //constant parameters
-  static String EMAIL="email";
-  static String PASSWORD="password";
-  static String STUDENT_ID="studentid";
-  static String PARENT_ID="pid";
-  static String MEET_ID="meet_id";
-  static String P_ID="parentid";
-  static String SUB="sub";
-  static String MSG="msg";
-  static String FCMToken="fcm_token";
-  static String TITLE="title";
-  static String SESSION_YEAR="sessionyear";
-  static String DATE="date";
-  static String MEETING_DATE="meetingdate";
-  static String VCH_MEETING_TIME="vchmeetingtime";
-  static String CUSTOMER_ID="customer_id";
-  static String DELIVERY_WEEK="delivery_week";
-  static String INTEVAL="interval";
-  static String ID="id";
-  static String FARM_ID="farmId";
-  static String PRODUCTION_DATE="productionDate";
-  static String SHIPMENT_DATE="shipmentDate";
-  static String T2_DATE="t2Date";
+  static String email="email";
+  static String password="password";
+  static String name="name";
+  static String phoneNumber="phone_number";
+  static String dob="dateofbirth";
+  static String address="address";
+  static String city="city";
+  static String state="state";
+  static String country="country";
+  static String pinCode="pincode";
+  static String user="user";
+  static String otp="otp";
+  static String userType="usertype";
+  static String userId="user_id";
+  static String lotteryId="lottery_id";
+  static String ticketNumber="ticket_number";
+  static String paymentStatus="payment_status";
+  static String countryId="country_id";
+  static String amount="amount";
+  static String transactionType="transaction_type";
+  static String transactionId="transation_id";
+  static String mailId="mail_id";
+  static String facebookId="facebookId";
+
   static String studentId="student_id=";
   static String subjectId="&subjectid=";
   static String classId="classid";

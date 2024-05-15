@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hap_winner_project/utils/extensions/extensions.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -56,10 +57,14 @@ class SignUpWithEmailState extends State<SignUpWithEmailPage> {
   dynamic loginResult;
   dynamic userDataResult;
 
-  final loginBloc = LoginBloc();
   bool dialogShown = false;
+  bool switchScreen = false;
   final signupBloc = SignUpBloc();
   String? fcmToken;
+  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: [
+    'email',
+    'profile',
+  ]);
 
   @override
   void initState() {
@@ -79,6 +84,30 @@ class SignUpWithEmailState extends State<SignUpWithEmailPage> {
       Future.delayed(Duration.zero, () {
         context.go(Routes.mainHome);
       });
+    }
+    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
+      // Triggered when the current user changes
+      // You can handle sign in success here
+      if (account != null) {
+        if (kDebugMode) {
+          print('User signed in: ${account.email}');
+        }
+        if (kDebugMode) {
+          print('User social id: ${account.id}');
+        }
+        loginBloc.add(GetSocialLoginData(
+            emailId: account.email,
+            socialId: account.id,
+            name: account.displayName!));
+      }
+    });
+  }
+
+  Future<void> _handleSignIn() async {
+    try {
+      await _googleSignIn.signIn();
+    } catch (error) {
+      print('Error signing in: $error');
     }
   }
 
@@ -150,68 +179,57 @@ class SignUpWithEmailState extends State<SignUpWithEmailPage> {
     });
   }
 
-  void login(String userName, String password) {
-    bool validEmail = isValidEmail(context, userName);
-    //  bool validPassword = isValidPassword(context, password);
+  void signup(String userName, String userEmail, String password) {
+    bool validEmail = isValidEmail(context, userEmail);
+    bool validPassword = isValidPassword(context, password);
+
     if (!validEmail) {
-      if (userName.isEmpty) {
-        toast(AppLocalizations.of(context).translate('enter_email'), true);
-      } else if (!EmailValidator.validate(userName)) {
-        toast(
-            AppLocalizations.of(context).translate('enter_valid_email'), true);
+      if (userEmail.isEmpty) {
+        toast('Enter email', true);
+      } else if (!EmailValidator.validate(userEmail)) {
+        toast('Enter valid email', true);
       }
       emailError = true;
-      _emailFocus.requestFocus();
-    }
-    /* else if (!validPassword) {
-      _passwordFocus.requestFocus();
-      passwordError = true;
-      if (password.isEmpty) {
-        toast(AppLocalizations.of(context).translate('enter_password'), true);
-      } else if (password.length < 8) {
-        toast(AppLocalizations.of(context).translate('enter_valid_password'),
-            true);
-      } else if (!passwordRegEx.hasMatch(password.toString())) {
-        toast(AppLocalizations.of(context).translate('enter_valid_password'),
-            true);
-      }
-    }*/
-    else {
-      passwordError = false;
+      //_emailFocus.requestFocus();
+    } else {
       emailError = false;
       fcmToken = SharedPrefs().getTokenKey();
-      if (Platform.isIOS) {
+
+      signupBloc.add(SignUpButtonPressed(userEmail: userEmail));
+      /* if (Platform.isIOS) {
         if (fcmToken != "" || fcmToken != null) {
-          loginBloc.add(LoginButtonPressed(
-              username: userName, password: password, fcmToken: fcmToken!));
+          signupBloc.add(SignUpButtonPressed(
+              firstName: userName,userEmail: userEmail,password: password  ));
         } else {
           toast("Fcm token empty", false);
         }
       } else {
         if (fcmToken != null) {
-          loginBloc.add(LoginButtonPressed(
-              username: userName, password: password, fcmToken: fcmToken!));
-        }
-      }
+          signupBloc.add(SignUpButtonPressed(
+              firstName: userName,userEmail: userEmail,password: password  ));        }
+      }*/
     }
   }
 
-  userDataAPI(dynamic loginSuccess) {
-    if (loginSuccess['status'] == "400" && !dialogShown) {
+  userDataAPI(dynamic loginSuccess, bool isSocial) {
+    if (loginSuccess['status'] == 401 && !dialogShown) {
       Future.delayed(Duration.zero, () {
         dialogShown = true;
         showCustomToast();
       });
     } else {
       if (loginSuccess['status'] == 200) {
-        dialogShown = false;
-        wrongError = false;
-        getUserData(loginSuccess);
+        if (!switchScreen) {
+          switchScreen = true;
+          dialogShown = false;
+          wrongError = false;
+          getUserData(loginSuccess, isSocial);
+        }
       }
     }
   }
 
-  getUserData(dynamic userData) {
+  getUserData(dynamic userData, bool isSocial) {
     if (userData != null || userData != "") {
       if (kDebugMode) {
         print("get user data api$userData");
@@ -219,35 +237,33 @@ class SignUpWithEmailState extends State<SignUpWithEmailPage> {
       passwordError = false;
       emailError = false;
 
-      SharedPrefs().setUserFullName(userData['result']['studentname']);
-      SharedPrefs().setUserEmail(userData['result']['vchmomemail']);
-      SharedPrefs().setStudentId(userData['result']['studentid']);
-      SharedPrefs().setParentId(userData['result']['parentid']);
-      SharedPrefs()
-          .setStudentCount(userData['result']['studuent_count'].toString());
-      SharedPrefs().setStudentMomName(userData['result']['mom']);
+      if (isSocial) {
+        SharedPrefs().setStudentId(userData['data']['user']['id'].toString());
+        SharedPrefs().setUserEmail(userData['data']['user']['email']);
+        SharedPrefs().setUserToken(userData['data']['token']);
 
-      List<Map<String, dynamic>> students = [];
-      if (userData['students_list'] != null) {
-        if (userData['students_list'] is List) {
-          // Check if 'students_list' is a List
-          students.addAll(
-            (userData['students_list'] as List)
-                .map((student) => student as Map<String, dynamic>)
-                .toList(),
-          );
-          SharedPrefs().saveStudents(students);
-        }
-      }
-      if (kDebugMode) {
-        print("studentList---${userData['students_list']}");
-        print("student---$students");
-      }
+        SharedPrefs().setIsLogin(true);
+        Future.delayed(Duration.zero, () {
+          context.go(Routes.mainHome);
+        });
+      } else {
+        SharedPrefs().setStudentId(userData['data']['user']['id'].toString());
+        SharedPrefs().setUserEmail(userData['data']['user']['email']);
+        // SharedPrefs().setUserToken(userData['data']['token']);
 
-      SharedPrefs().setIsLogin(true);
+        Future.delayed(Duration.zero, () {
+          //context.push(Routes.otpVerify);
+
+          context.pushNamed('otpVerify', queryParameters: {
+            'id': SharedPrefs().getStudentId().toString(),
+            'type': 'register'
+          });
+        });
+      }
+      /*SharedPrefs().setIsLogin(true);
       Future.delayed(Duration.zero, () {
         context.go(Routes.mainHome);
-      });
+      });*/
     }
   }
 
@@ -258,7 +274,7 @@ class SignUpWithEmailState extends State<SignUpWithEmailPage> {
 
     Widget toast = const CustomToastWidget(
       msg: 'Invalid email and/or password. Please try again.',
-      image: 'assets/images/ic_wrong_alert.png',
+      image: 'assets/ic_wrong_alert.png',
       email: "",
       scale: 2,
     );
@@ -282,52 +298,51 @@ class SignUpWithEmailState extends State<SignUpWithEmailPage> {
     final mq = MediaQuery.of(context).size;
     fToast.init(context);
     return BlocProvider(
-        create: (context) => loginBloc,
+        create: (context) => signupBloc,
         child: Scaffold(
           resizeToAvoidBottomInset: true,
-          body: BlocBuilder<LoginBloc, CommonState>(
+          body: BlocBuilder<SignUpBloc, CommonState>(
             builder: (context, state) {
               if (state is LoadingState) {
-                return loaderBar(context, mq);
+                return buildHomeContainer(context, mq, true);
               } else if (state is SuccessState) {
-                userDataAPI(state.response);
-                return buildHomeContainer(context, mq);
-              } else if (state is UserDataSuccessState) {
-                getUserData(state.response);
-                return buildHomeContainer(context, mq);
+                userDataAPI(state.response, false);
+                return buildHomeContainer(context, mq, false);
+              } else if (state is SocialLoginState) {
+                userDataAPI(state.response, true);
+                return buildHomeContainer(context, mq, false);
               } else if (state is FailureState) {
-                return buildHomeContainer(context, mq);
+                return buildHomeContainer(context, mq, false);
               }
-              return buildHomeContainer(context, mq);
+              return buildHomeContainer(context, mq, false);
             },
           ),
         ));
   }
 
-  Widget loaderBar(BuildContext context, Size mq) {
-    return Container(
-      constraints: const BoxConstraints.expand(),
-      decoration: boxImageBgDecoration(),
-      child: Stack(
-        children: [
-          Container(
-            margin:
-                const EdgeInsets.only(bottom: 20, top: 40, left: 32, right: 32),
-            child: ListView(
-              shrinkWrap: true,
-              primary: false,
-              children: [
-                Center(
-                  child: Image.asset(
-                    "assets/app_logo.png",
-                    scale: 3,
-                  ),
-                ),
-                buildSignInContainer(context, mq),
-              ],
+  Widget buildHomeContainer(BuildContext context, Size mq, bool isLoading) {
+    return Stack(children: [
+      Container(
+        decoration: boxImageBgDecoration(),
+        padding:
+            const EdgeInsets.only(left: 30, right: 30, top: 30, bottom: 30),
+        constraints: const BoxConstraints.expand(),
+        child: ListView(
+          children: [
+            Center(
+              child: Image.asset(
+                "assets/splash_logo.png",
+                scale: 3,
+              ),
             ),
-          ),
-          Container(
+            30.height,
+            buildSignInContainer(context, mq),
+          ],
+        ),
+      ),
+      Visibility(
+          visible: isLoading,
+          child: Container(
             height: 500,
             margin: const EdgeInsets.only(bottom: 20, top: 80),
             child: const Column(
@@ -341,30 +356,8 @@ class SignUpWithEmailState extends State<SignUpWithEmailPage> {
                 ))
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildHomeContainer(BuildContext context, Size mq) {
-    return Container(
-      decoration: boxImageBgDecoration(),
-      padding: const EdgeInsets.only(left: 30, right: 30, top: 80, bottom: 30),
-      constraints: const BoxConstraints.expand(),
-      child: ListView(
-        children: [
-          Center(
-            child: Image.asset(
-              "assets/splash_logo.png",
-              scale: 3,
-            ),
-          ),
-          30.height,
-          buildSignInContainer(context, mq),
-        ],
-      ),
-    );
+          )),
+    ]);
   }
 
   Widget buildSignInContainer(BuildContext context, Size mq) {
@@ -374,7 +367,7 @@ class SignUpWithEmailState extends State<SignUpWithEmailPage> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              40.height,
+              /*40.height,
               CommonTextField(
                 controller: _nameText,
                 hintText: "Name",
@@ -389,12 +382,11 @@ class SignUpWithEmailState extends State<SignUpWithEmailPage> {
                 wrongError: wrongError,
                 decoration: kEditTextDecoration,
                 padding: 0,
-              ),
+              ),*/
               20.height,
-
               CommonTextField(
                 controller: _emailText,
-                hintText: "Email",
+                hintText: "Email/Mobile Number".allInCaps,
                 text: "",
                 isFocused: false,
                 textColor: Colors.black,
@@ -406,9 +398,10 @@ class SignUpWithEmailState extends State<SignUpWithEmailPage> {
                 wrongError: wrongError,
                 decoration: kEditTextDecoration,
                 padding: 0,
+                leftIcon: true, enable: true
               ),
               20.height,
-              Stack(children: [
+/*              Stack(children: [
                 CommonPasswordTextField(
                   controller: _passwordText,
                   hintText: "Password",
@@ -436,19 +429,22 @@ class SignUpWithEmailState extends State<SignUpWithEmailPage> {
                     ),
                   ),
                 ),
-              ]),
-              40.height,
+              ])*/
+              20.height,
               Container(
                 decoration: kButtonBoxDecorationEmpty,
                 height: 50,
                 alignment: Alignment.center,
                 child: ElevatedButton(
                     onPressed: () {
-                      Future.delayed(Duration.zero, () {
+                      /*Future.delayed(Duration.zero, () {
                         context.go(Routes.mainHome);
-                      });
+                      });*/
                       //dialogShown = false;
-                      //login(_emailText.text.trim().toString(), _passwordText.text.trim().toString());
+                      signup(
+                          _nameText.text.toString(),
+                          _emailText.text.trim().toString(),
+                          _passwordText.text.trim().toString());
                     },
                     style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
@@ -464,17 +460,20 @@ class SignUpWithEmailState extends State<SignUpWithEmailPage> {
                       ],
                     )),
               ),
-
-              40.height,
+              20.height,
               InkWell(
-                onTap: () async {},
+                onTap: () async {
+                  Future.delayed(Duration.zero, () {
+                    context.go(Routes.signIn);
+                  });
+                },
                 child: Container(
                   margin: const EdgeInsets.all(10),
                   alignment: Alignment.center,
-                  child: const Text("If you have not account? Signup",
+                  child: const Text("If you have an account? Login",
                       textAlign: TextAlign.right,
                       style: TextStyle(
-                          color: Colors.black,
+                          color: Colors.white,
                           fontSize: 18,
                           letterSpacing: 0,
                           fontWeight: FontWeight.w500,
@@ -482,7 +481,69 @@ class SignUpWithEmailState extends State<SignUpWithEmailPage> {
                 ),
               ),
               20.height,
-
+              Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Flexible(
+                      flex: 2,
+                      child: Center(
+                        child: Container(
+                          height: 1,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const Flexible(
+                      flex: 1,
+                      child: Center(
+                        child: Text(
+                          "OR",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 22, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    Flexible(
+                      flex: 2,
+                      child: Center(
+                        child: Container(
+                          height: 1,
+                          color: Colors.white,
+                        ),
+                      ),
+                    )
+                  ]),
+              20.height,
+              Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        _handleSignIn();
+                      },
+                      child: Center(
+                          child: Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: kGoogleBoxDecoration,
+                        child: Image.asset(
+                          "assets/google_plus.png",
+                          scale: 1.5,
+                        ),
+                      )),
+                    ),
+                    20.width,
+                    Center(
+                        child: Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: kFaceBookBoxDecoration,
+                      child: Image.asset(
+                        "assets/facebook.png",
+                        scale: 1.5,
+                      ),
+                    )),
+                  ])
             ]));
   }
 }

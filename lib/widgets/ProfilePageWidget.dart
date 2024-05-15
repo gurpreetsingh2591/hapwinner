@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hap_winner_project/utils/extensions/extensions.dart';
+import 'package:hap_winner_project/utils/shared_prefs.dart';
 import '../utils/constant.dart';
 import 'TicketItemWidget.dart';
 import 'TopBarWidget.dart';
@@ -29,11 +30,14 @@ class ProfilePageWidget extends StatelessWidget {
                 alignment: Alignment.center,
                 decoration: kTopBarDecoration,
                 child: TopBarWidget(
-                  onTapLeft: () {},
-                  leftIcon: 'assets/back_arrow.png',
+                  onTapLeft: () {
+                   // scaffoldKey.currentState?.openDrawer();
+
+                  },
+                  leftIcon: 'assets/menu.png',
                   title: 'Profile',
                   leftVisibility: false,
-                  screen: 'buy_ticket',
+                  screen: 'profile',
                 ),
               ),
               Container(
@@ -66,7 +70,7 @@ class ProfilePageWidget extends StatelessWidget {
                           ),
                           10.width,
                           Text(
-                            "John",
+                            SharedPrefs().getUserFullName().toString(),
                             style:
                             textStyle(Colors.white, 16, 0, FontWeight.w400),
                           ),
@@ -82,7 +86,7 @@ class ProfilePageWidget extends StatelessWidget {
                           ),
                           10.width,
                           Text(
-                            "15-04-1987",
+                            "",
                             style:
                             textStyle(Colors.white, 16, 0, FontWeight.w400),
                           ),
@@ -99,7 +103,7 @@ class ProfilePageWidget extends StatelessWidget {
                           ),
                           10.width,
                           Text(
-                            "john@yopmail.com",
+                              SharedPrefs().getUserEmail().toString(),
                             style:
                             textStyle(Colors.white, 16, 0, FontWeight.w400),
                           ),
@@ -115,7 +119,7 @@ class ProfilePageWidget extends StatelessWidget {
                           ),
                           10.width,
                           Text(
-                            "+167767777",
+                            "",
                             style:
                             textStyle(Colors.white, 16, 0, FontWeight.w400),
                           ),
@@ -131,7 +135,7 @@ class ProfilePageWidget extends StatelessWidget {
                           ),
                           10.width,
                           Text(
-                            "8198 Fieldstone, WI 54601",
+                            "1A, sunny enclave, Mohali",
                             style:
                             textStyle(Colors.white, 16, 0, FontWeight.w400),
                           ),

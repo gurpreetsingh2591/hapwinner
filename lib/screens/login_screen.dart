@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hap_winner_project/utils/extensions/extensions.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,12 +20,14 @@ import '../bloc/logic_bloc/signup_bloc.dart';
 import '../data/api/ApiService.dart';
 import '../bloc/logic_bloc/login_bloc.dart';
 import '../bloc/state/common_state.dart';
+import '../model/ChecklistItem.dart';
 import '../utils/center_loader.dart';
 import '../utils/constant.dart';
 import '../utils/shared_prefs.dart';
 import '../utils/themes/colors.dart';
 import '../utils/toast.dart';
 import '../widgets/ColoredSafeArea.dart';
+import '../widgets/CommonMobileField.dart';
 import '../widgets/CommonPasswordTextField.dart';
 import '../widgets/CommonTextField.dart';
 import '../widgets/CustomToastWidget.dart';
@@ -40,15 +43,18 @@ class LoginPage extends StatefulWidget {
 class LoginPageState extends State<LoginPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _emailText = TextEditingController();
+  final _mobileText = TextEditingController();
   final _passwordText = TextEditingController();
   final FocusNode _emailFocus = FocusNode();
   final FocusNode _passwordFocus = FocusNode();
+  final FocusNode _mobileFocus = FocusNode();
 
   bool isLoading = false;
   bool isLogin = false;
   bool _obscurePassword = true;
   bool emailError = false;
   bool wrongError = false;
+  bool switchScreen = false;
   bool passwordError = false;
   FToast fToast = FToast();
   dynamic loginResult;
@@ -58,6 +64,14 @@ class LoginPageState extends State<LoginPage> {
   bool dialogShown = false;
   final signupBloc = SignUpBloc();
   String? fcmToken;
+  String? _selectedOption = "otp";
+  final GoogleSignIn _googleSignIn =
+      GoogleSignIn(scopes: ['email', 'profile',]);
+
+  final List<ChecklistItem> _items = [
+    ChecklistItem('Item 1'),
+    ChecklistItem('Item 2'),
+  ];
 
   @override
   void initState() {
@@ -77,6 +91,31 @@ class LoginPageState extends State<LoginPage> {
       Future.delayed(Duration.zero, () {
         context.go(Routes.mainHome);
       });
+    }
+
+    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
+      // Triggered when the current user changes
+      // You can handle sign in success here
+      if (account != null) {
+        if (kDebugMode) {
+          print('User signed in: ${account.email}');
+        }
+        if (kDebugMode) {
+          print('User social id: ${account.id}');
+        }
+        loginBloc.add(GetSocialLoginData(
+            emailId: account.email,
+            socialId: account.id,
+            name: account.displayName!));
+      }
+    });
+  }
+
+  Future<void> _handleSignIn() async {
+    try {
+      await _googleSignIn.signIn();
+    } catch (error) {
+      print('Error signing in: $error');
     }
   }
 
@@ -148,43 +187,51 @@ class LoginPageState extends State<LoginPage> {
     });
   }
 
-  void login(String userName, String password) {
+  void loginWithOTP(String userName) {
     bool validEmail = isValidEmail(context, userName);
-     bool validPassword = isValidPassword(context, password);
     if (!validEmail) {
       if (userName.isEmpty) {
-        toast(AppLocalizations.of(context).translate('enter_email'), true);
+        toast('Enter email/mobile', true);
       } else if (!EmailValidator.validate(userName)) {
-        toast(
-            AppLocalizations.of(context).translate('enter_valid_email'), true);
+        toast('Enter valid email/mobile', true);
       }
       emailError = true;
-      _emailFocus.requestFocus();
+      // _emailFocus.requestFocus();
+    } else {
+      emailError = false;
+      fcmToken = SharedPrefs().getTokenKey();
+      loginBloc
+          .add(LoginWithOTPButtonPressed(username: userName, fcmToken: ""));
     }
-     else if (!validPassword) {
-      _passwordFocus.requestFocus();
+  }
+
+  void loginWithPassword(String userName, String password) {
+    bool validEmail = isValidEmail(context, userName);
+    bool validPassword = isValidPassword(context, password);
+    if (!validEmail) {
+      if (userName.isEmpty) {
+        toast('Enter email', true);
+      } else if (!EmailValidator.validate(userName)) {
+        toast('Enter valid email', true);
+      }
+      emailError = true;
+      // _emailFocus.requestFocus();
+    } else if (!validPassword) {
+      // _passwordFocus.requestFocus();
       passwordError = true;
       if (password.isEmpty) {
-        toast(AppLocalizations.of(context).translate('enter_password'), true);
-      } else if (password.length < 8) {
-        toast(AppLocalizations.of(context).translate('enter_valid_password'),
-            true);
-      } else if (!passwordRegEx.hasMatch(password.toString())) {
-        toast(AppLocalizations.of(context).translate('enter_valid_password'),
-            true);
+        toast('Enter password', true);
+      } else if (password.length < 6) {
+        toast('Enter minimum 6 character', true);
       }
-    }
-    else {
-
-
-
+    } else {
       passwordError = false;
       emailError = false;
       fcmToken = SharedPrefs().getTokenKey();
       loginBloc.add(LoginButtonPressed(
           username: userName, password: password, fcmToken: ""));
 
-     /* if (Platform.isIOS) {
+      /* if (Platform.isIOS) {
         if (fcmToken != "" || fcmToken != null) {
           loginBloc.add(LoginButtonPressed(
               username: userName, password: password, fcmToken: fcmToken!));
@@ -200,7 +247,8 @@ class LoginPageState extends State<LoginPage> {
     }
   }
 
-  userDataAPI(dynamic loginSuccess) {
+  userDataAPI(dynamic loginSuccess,bool isSocial) {
+    print("login data---$loginSuccess");
     if (loginSuccess['status'] == 401 && !dialogShown) {
       Future.delayed(Duration.zero, () {
         dialogShown = true;
@@ -208,50 +256,64 @@ class LoginPageState extends State<LoginPage> {
       });
     } else {
       if (loginSuccess['status'] == 200) {
-        dialogShown = false;
-        wrongError = false;
-        getUserData(loginSuccess);
+        if (!switchScreen) {
+          dialogShown = false;
+          wrongError = false;
+          switchScreen = true;
+          getUserData(loginSuccess,isSocial);
+        }
       }
     }
   }
 
-  getUserData(dynamic userData) {
+  getUserData(dynamic userData,bool isSocial) {
     if (userData != null || userData != "") {
       if (kDebugMode) {
         print("get user data api$userData");
       }
       passwordError = false;
       emailError = false;
+      if(isSocial){
+        SharedPrefs().setStudentId(userData['data']['user']['id'].toString());
+        SharedPrefs().setUserEmail(userData['data']['user']['email']);
+        SharedPrefs().setUserToken(userData['data']['token']);
 
-      /*SharedPrefs().setUserFullName(userData['result']['studentname']);
-      SharedPrefs().setUserEmail(userData['result']['vchmomemail']);
-      SharedPrefs().setStudentId(userData['result']['studentid']);
-      SharedPrefs().setParentId(userData['result']['parentid']);
-      SharedPrefs()
-          .setStudentCount(userData['result']['studuent_count'].toString());
-      SharedPrefs().setStudentMomName(userData['result']['mom']);
+        SharedPrefs().setIsLogin(true);
+        Future.delayed(Duration.zero, () {
+          context.go(Routes.mainHome);
+        });
+      }else {
+        if (_selectedOption == "password") {
+          SharedPrefs().setUserFullName(userData['data']['user']['name']);
+          SharedPrefs().setUserEmail(userData['data']['user']['email']);
+          SharedPrefs().setStudentId(userData['data']['user']['id'].toString());
+          bool isVerified = (userData['data']['user']['otpverified']);
+          SharedPrefs().setUserToken(userData['data']['token']);
 
-      List<Map<String, dynamic>> students = [];
-      if (userData['students_list'] != null) {
-        if (userData['students_list'] is List) {
-          // Check if 'students_list' is a List
-          students.addAll(
-            (userData['students_list'] as List)
-                .map((student) => student as Map<String, dynamic>)
-                .toList(),
-          );
-          SharedPrefs().saveStudents(students);
+          if (isVerified == 1) {
+            SharedPrefs().setIsLogin(true);
+            Future.delayed(Duration.zero, () {
+              context.go(Routes.mainHome);
+            });
+          } else {
+            toast("Your account not verified", true);
+          }
+        } else {
+          SharedPrefs().setUserFullName(userData['data']['user']['name']);
+          SharedPrefs().setStudentId(userData['data']['user']['id'].toString());
+          SharedPrefs().setUserEmail(userData['data']['user']['email']);
+          //SharedPrefs().setUserToken(userData['data']['token']);
+
+          Future.delayed(Duration.zero, () {
+            //context.push(Routes.otpVerify);
+
+            context.pushNamed('otpVerify', queryParameters: {
+              'id': SharedPrefs().getStudentId().toString(),
+              'type': 'login'
+            });
+          });
         }
       }
-      if (kDebugMode) {
-        print("studentList---${userData['students_list']}");
-        print("student---$students");
-      }*/
-
-      SharedPrefs().setIsLogin(true);
-      Future.delayed(Duration.zero, () {
-        context.go(Routes.mainHome);
-      });
     }
   }
 
@@ -262,7 +324,7 @@ class LoginPageState extends State<LoginPage> {
 
     Widget toast = const CustomToastWidget(
       msg: 'Invalid email and/or password. Please try again.',
-      image: 'assets/images/ic_wrong_alert.png',
+      image: 'assets/ic_wrong_alert.png',
       email: "",
       scale: 2,
     );
@@ -270,7 +332,7 @@ class LoginPageState extends State<LoginPage> {
     fToast.showToast(
         child: toast,
         gravity: ToastGravity.CENTER,
-        toastDuration: const Duration(seconds: 3),
+        toastDuration: const Duration(seconds: 4),
         positionedToastBuilder: (context, child) {
           return Positioned(
             bottom: 180,
@@ -292,182 +354,276 @@ class LoginPageState extends State<LoginPage> {
           body: BlocBuilder<LoginBloc, CommonState>(
             builder: (context, state) {
               if (state is LoadingState) {
-                return buildHomeContainer(context, mq,true);
+                return buildHomeContainer(context, mq, true);
               } else if (state is SuccessState) {
-                userDataAPI(state.response);
-                return buildHomeContainer(context, mq,false);
-              }  else if (state is FailureState) {
-                return buildHomeContainer(context, mq,false);
+                userDataAPI(state.response,false);
+                return buildHomeContainer(context, mq, false);
+              } else if (state is SocialLoginState) {
+                userDataAPI(state.response,true);
+                return buildHomeContainer(context, mq, false);
+              } else if (state is FailureState) {
+                return buildHomeContainer(context, mq, false);
               }
-              return buildHomeContainer(context, mq,false);
+              return buildHomeContainer(context, mq, false);
             },
           ),
         ));
   }
 
-
   Widget buildHomeContainer(BuildContext context, Size mq, bool isLoader) {
-    return Stack(children: [Container(
-      decoration: boxImageBgDecoration(),
-      padding: const EdgeInsets.only(left: 30, right: 30, top: 80, bottom: 30),
-      constraints: const BoxConstraints.expand(),
-      child: ListView(
-        children: [
-          Center(
-            child: Image.asset(
-              "assets/splash_logo.png",
-              scale: 3,
+    return Stack(children: [
+      Container(
+        decoration: boxImageBgDecoration(),
+        padding:
+            const EdgeInsets.only(right: 30, left: 30, top: 30, bottom: 10),
+        constraints: const BoxConstraints.expand(),
+        child: ListView(
+          children: [
+            Center(
+              child: Image.asset(
+                "assets/splash_logo.png",
+                scale: 3,
+              ),
             ),
-          ),
-          50.height,
-          buildSignInContainer(context, mq),
-        ],
+            10.height,
+            buildSignInContainer(context, mq),
+          ],
+        ),
       ),
-    ),
       Visibility(
           visible: isLoader,
           child: Container(
-        height: 500,
-        margin: const EdgeInsets.only(bottom: 20, top: 80),
-        child: const Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Center(
-                child: SpinKitFadingCircle(
+            height: 500,
+            margin: const EdgeInsets.only(bottom: 20, top: 80),
+            child: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Center(
+                    child: SpinKitFadingCircle(
                   color: kLightGray,
                   size: 80.0,
                 ))
-          ],
-        ),
-      ))
-    ]
-    );
+              ],
+            ),
+          ))
+    ]);
   }
 
   Widget buildSignInContainer(BuildContext context, Size mq) {
     return Align(
-        alignment: Alignment.topLeft,
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              40.height,
-
-              CommonTextField(
-                controller: _emailText,
-                hintText: "Email",
-                text: "",
-                isFocused: false,
-                textColor: Colors.black,
-                focus: _emailFocus,
-                textSize: 16,
-                weight: FontWeight.w400,
-                hintColor: Colors.black26,
-                error: emailError,
-                wrongError: wrongError,
-                decoration: kEditTextDecoration,
-                padding: 0,
-              ),
-              20.height,
-              Stack(children: [
-                CommonPasswordTextField(
-                  controller: _passwordText,
-                  hintText: "Password",
-                  text: "",
-                  isFocused: false,
-                  textColor: Colors.black,
-                  focus: _passwordFocus,
-                  textSize: 16,
-                  weight: FontWeight.w400,
-                  hintColor: Colors.black26,
-                  obscurePassword: _obscurePassword,
-                  error: passwordError,
-                  wrongError: wrongError,
-                ),
-                Container(
-                  margin: const EdgeInsets.only(top: 13, right: 10),
-                  alignment: Alignment.centerRight,
-                  child: GestureDetector(
-                    onTap: _togglePasswordVisibility,
-                    child: Icon(
-                      _obscurePassword
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                      color: kBaseColor,
+      alignment: Alignment.topLeft,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          RadioListTile<String>(
+            title: const Text('Login with OTP'),
+            value: 'otp',
+            groupValue: _selectedOption,
+            onChanged: (value) {
+              setState(() {
+                _selectedOption = value;
+              });
+            },
+            contentPadding: const EdgeInsets.symmetric(
+                horizontal: 0), // Reduce horizontal padding
+          ),
+          Transform.translate(
+            offset: const Offset(0, -20),
+            // Negative margin, moves this widget up
+            child: RadioListTile<String>(
+              title: const Text('Login with password'),
+              value: 'password',
+              groupValue: _selectedOption,
+              onChanged: (value) {
+                setState(() {
+                  _selectedOption = value;
+                });
+              },
+              contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 0), // Reduce horizontal padding
+            ),
+          ),
+          CommonTextField(
+            controller: _emailText,
+            hintText: "Email/Mobile",
+            text: "",
+            isFocused: false,
+            textColor: Colors.black,
+            focus: _emailFocus,
+            textSize: 16,
+            weight: FontWeight.w400,
+            hintColor: Colors.black26,
+            error: emailError,
+            wrongError: wrongError,
+            decoration: kEditTextDecoration,
+            padding: 0, leftIcon: true, enable: true,
+          ),
+          20.height,
+          _selectedOption == "password"
+              ? Stack(children: [
+                  CommonPasswordTextField(
+                    controller: _passwordText,
+                    hintText: "Password",
+                    text: "",
+                    isFocused: false,
+                    textColor: Colors.black,
+                    focus: _passwordFocus,
+                    textSize: 16,
+                    weight: FontWeight.w400,
+                    hintColor: Colors.black26,
+                    obscurePassword: _obscurePassword,
+                    error: passwordError,
+                    wrongError: wrongError,
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(top: 13, right: 10),
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: _togglePasswordVisibility,
+                      child: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: kBaseColor,
+                      ),
+                    ),
+                  ),
+                ])
+              : const SizedBox(),
+          20.height,
+          Container(
+            decoration: kButtonBoxDecorationEmpty,
+            height: 50,
+            alignment: Alignment.center,
+            child: ElevatedButton(
+                onPressed: () {
+                  if (kDebugMode) {
+                    print("object");
+                  }
+                  if (_selectedOption == "password") {
+                    loginWithPassword(_emailText.text.trim().toString(),
+                        _passwordText.text.trim().toString());
+                  } else {
+                    loginWithOTP(_emailText.text.trim().toString());
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Text("Login".allInCaps,
+                          style: textStyle(
+                              Colors.white, 16, 0.5, FontWeight.w400)),
+                    ),
+                  ],
+                )),
+          ),
+          10.height,
+          InkWell(
+            onTap: () async {},
+            child: Container(
+              margin: const EdgeInsets.all(10),
+              alignment: Alignment.topRight,
+              child: const Text("Forgot Password?",
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      letterSpacing: 0.5,
+                      fontWeight: FontWeight.w400,
+                      fontFamily: 'poppins')),
+            ),
+          ),
+          10.height,
+          InkWell(
+            onTap: () async {
+              Future.delayed(Duration.zero, () {
+                context.push(Routes.signupWithEmail);
+              });
+            },
+            child: Container(
+              margin: const EdgeInsets.all(10),
+              alignment: Alignment.center,
+              child: const Text("Don't have account? REGISTER",
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      letterSpacing: 0,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'poppins')),
+            ),
+          ),
+          10.height,
+          Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Flexible(
+                  flex: 2,
+                  child: Center(
+                    child: Container(
+                      height: 1,
+                      color: Colors.white,
                     ),
                   ),
                 ),
+                const Flexible(
+                  flex: 1,
+                  child: Center(
+                    child: Text(
+                      "OR",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 22, color: Colors.white),
+                    ),
+                  ),
+                ),
+                Flexible(
+                  flex: 2,
+                  child: Center(
+                    child: Container(
+                      height: 1,
+                      color: Colors.white,
+                    ),
+                  ),
+                )
               ]),
-              40.height,
-              Container(
-                decoration: kButtonBoxDecorationEmpty,
-                height: 50,
-                alignment: Alignment.center,
-                child: ElevatedButton(
-                    onPressed: () {
-                      if (kDebugMode) {
-                        print("object");
-                      }
-                     /* Future.delayed(Duration.zero, () {
-                        context.go(Routes.mainHome);
-                      });*/
-                      //dialogShown = false;
-                      login(_emailText.text.trim().toString(), _passwordText.text.trim().toString());
+          20.height,
+          Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                InkWell(
+                    onTap: () {
+                      _handleSignIn();
                     },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Flexible(
-                          child: Text("Login".allInCaps,
-                              style: textStyle(
-                                  Colors.white, 16, 0.5, FontWeight.w400)),
-                        ),
-                      ],
-                    )),
-              ),
-              10.height,
-              InkWell(
-                onTap: () async {},
-                child: Container(
-                  margin: const EdgeInsets.all(10),
-                  alignment: Alignment.topRight,
-                  child: const Text("Forgot Password?",
-                      textAlign: TextAlign.right,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          letterSpacing: 0.5,
-                          fontWeight: FontWeight.w400,
-                          fontFamily: 'poppins')),
-                ),
-              ),
-              20.height,
-              InkWell(
-                onTap: () async {
-                  Future.delayed(Duration.zero, () {
-                    context.push(Routes.signup);
-                  });
-                },
-                child: Container(
-                  margin: const EdgeInsets.all(10),
-                  alignment: Alignment.center,
-                  child: const Text("If you have not account? Signup",
-                      textAlign: TextAlign.right,
-                      style: TextStyle(
-
-                          color: Colors.black,
-                          fontSize: 18,
-                          letterSpacing: 0,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'poppins')),
-                ),
-              ),
-              20.height,
-
-            ]));
+                    child: Center(
+                        child: Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: kGoogleBoxDecoration,
+                      child: Image.asset(
+                        "assets/google_plus.png",
+                        scale: 2,
+                      ),
+                    ))),
+                20.width,
+                Center(
+                    child: Container(
+                  padding: const EdgeInsets.all(5),
+                  decoration: kFaceBookBoxDecoration,
+                  child: Image.asset(
+                    "assets/facebook.png",
+                    scale: 2,
+                  ),
+                )),
+              ])
+        ],
+      ),
+    );
   }
 }

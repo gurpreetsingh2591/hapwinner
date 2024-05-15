@@ -3,7 +3,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hap_winner_project/utils/extensions/extensions.dart';
 
-
 import '../app/router.dart';
 import '../data/api/ApiService.dart';
 import '../model/CommonResponse.dart';
@@ -21,37 +20,37 @@ class DrawerWidget extends StatelessWidget {
     required this.contexts,
   }) : super(key: key);
 
+  Future<void> yesClick(BuildContext context) async {
+    Navigator.of(context, rootNavigator: true).pop();
 
-   Future<void> yesClick(BuildContext context)  async {
-     Navigator.of(context, rootNavigator: true).pop();
+    //  showVerifyEmailLoader(context,true);
 
-   //  showVerifyEmailLoader(context,true);
-
-     dynamic getUserData =  await ApiService().getDeleteUserData(SharedPrefs().getParentId().toString());
+    dynamic getUserData = await ApiService()
+        .getDeleteUserData(SharedPrefs().getUserToken().toString());
 
     // Ensure listener fires
     var deleteUser = CommonResponse.fromJson(getUserData);
     dynamic status = deleteUser.status;
     String message = deleteUser.message;
 
-
-
     if (status == 200) {
-     toast(message, false);
+      toast(message, false);
       SharedPrefs().setIsLogin(false);
       SharedPrefs().reset();
       context.go(Routes.signIn);
-
-   }
+    }
     // Navigator.pop(context);
-
   }
-   cancelClick(BuildContext context){
+
+  cancelClick(BuildContext context) {
     Navigator.pop(context);
   }
 
-  showDeleteAccountAlertDialog(BuildContext context, String title, String msg,
-      ) {
+  showDeleteAccountAlertDialog(
+    BuildContext context,
+    String title,
+    String msg,
+  ) {
     // set up the button
     Widget okButton = TextButton(
       child: const Text("Yes"),
@@ -65,13 +64,13 @@ class DrawerWidget extends StatelessWidget {
         //Navigator.pop(contexts);
 
         Navigator.of(contexts, rootNavigator: true).pop();
-        },
+      },
     );
 
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
       title:
-      Text(title, style: textStyle(Colors.black, 14, 0, FontWeight.normal)),
+          Text(title, style: textStyle(Colors.black, 14, 0, FontWeight.normal)),
       content: Text(
         msg,
         style: textStyle(Colors.black, 14, 0, FontWeight.normal),
@@ -90,7 +89,6 @@ class DrawerWidget extends StatelessWidget {
       },
     );
   }
-
 
   showVerifyEmailLoader(BuildContext context, bool isLoading) {
     showDialog(
@@ -121,352 +119,130 @@ class DrawerWidget extends StatelessWidget {
         });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: boxImageDrawerBgDecoration(),
-      child: ListView(
-        padding: const EdgeInsets.only(top: 40, left: 10),
-        children: [
-          Container(
-            margin: const EdgeInsets.only(left: 15, bottom: 7),
-            alignment: Alignment.topLeft,
-            child: Image.asset(
-              'assets/icons/app_logo.png',
-              scale: 4,
+        padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              width: 150,
+              padding: const EdgeInsets.all(10),
+              decoration: kButtonBgDecoration,
+              margin: const EdgeInsets.only(bottom: 7),
+              alignment: Alignment.topLeft,
+              child: Image.asset(
+                'assets/logo.png',
+              ),
             ),
-          ),
-          SizedBox(
-              height: 40,
+            SizedBox(
+                height: 50,
+                child: ListTile(
+                  title: Transform(
+                    transform: Matrix4.translationValues(-10, 0.0, 0.0),
+                    child: Text(
+                      'Home',
+                      style: textStyle(Colors.black, 16, 0, FontWeight.normal),
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.pushReplacement(Routes.mainHome);
+                  },
+                )),
+            7.height,
+            SizedBox(
+                height: 50,
+                child: ListTile(
+                  title: Transform(
+                    transform: Matrix4.translationValues(-10, 0.0, 0.0),
+                    child: Text(
+                      'History',
+                      style: textStyle(Colors.black, 16, 0, FontWeight.normal),
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    //context.pushReplacement(Routes.lunchMenu);
+                  },
+                )),
+            7.height,
+            SizedBox(
+              height: 50,
               child: ListTile(
-                leading: Image.asset(
-                  'assets/icons/home.png',
-                  scale: 12,
-                ),
                 title: Transform(
                   transform: Matrix4.translationValues(-10, 0.0, 0.0),
                   child: Text(
-                    'Home',
-                    style: textStyle(Colors.black, 14, 0, FontWeight.normal),
+                    'Privacy Policy',
+                    style: textStyle(Colors.black, 16, 0, FontWeight.normal),
                   ),
                 ),
                 onTap: () {
                   Navigator.pop(context);
-                  context.pushReplacement(Routes.mainHome);
+                 // context.pushReplacement(Routes.snackMenu);
                 },
-              )),
-          7.height,
-          SizedBox(
-              height: 40,
-              child: ListTile(
-                leading: Image.asset(
-                  'assets/icons/menu_list.png',
-                  scale: 12,
-                ),
-                title: Transform(
-                  transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                  child: Text(
-                    'Lunch Menu',
-                    style: textStyle(Colors.black, 14, 0, FontWeight.normal),
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  context.pushReplacement(Routes.lunchMenu);
-                },
-              )),
-          7.height,
-          SizedBox(
-            height: 40,
-            child: ListTile(
-              leading: Image.asset(
-                'assets/icons/food.png',
-                scale: 12,
               ),
-              title: Transform(
-                transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                child: Text(
-                  'Snacks Menu',
-                  style: textStyle(Colors.black, 14, 0, FontWeight.normal),
-                ),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                context.pushReplacement(Routes.snackMenu);
-              },
             ),
-          ),
-          7.height,
-          SizedBox(
-            height: 40,
-            child: ListTile(
-              leading: Image.asset(
-                'assets/icons/calender.png',
-                scale: 12,
-              ),
-              title: Transform(
-                transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                child: Text(
-                  'School Calender',
-                  style: textStyle(Colors.black, 14, 0, FontWeight.normal),
+            7.height,
+            SizedBox(
+              height: 50,
+              child: ListTile(
+                title: Transform(
+                  transform: Matrix4.translationValues(-10, 0.0, 0.0),
+                  child: Text(
+                    'Contact Us',
+                    style: textStyle(Colors.black, 16, 0, FontWeight.normal),
+                  ),
                 ),
+                onTap: () {
+                  Navigator.pop(context);
+                 // context.pushReplacement(Routes.schoolCalender);
+                },
               ),
-              onTap: () {
-                Navigator.pop(context);
-                context.pushReplacement(Routes.schoolCalender);
-              },
             ),
-          ),
-          7.height,
-          SizedBox(
-            height: 40,
-            child: ListTile(
-              leading: Image.asset(
-                'assets/icons/message_from_school.png',
-                scale: 12,
-              ),
-              title: Transform(
-                transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                child: Text(
-                  'Message From School',
-                  style: textStyle(Colors.black, 14, 0, FontWeight.normal),
-                ),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                context.pushReplacement(Routes.myCart);
-              },
-            ),
-          ),
-          7.height,
-          SizedBox(
-              height: 40,
-              child: ListTile(
-                leading: Image.asset(
-                  'assets/icons/meeting_with_teacher.png',
-                  scale: 12,
-                ),
-                title: Transform(
-                  transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                  child: Text(
-                    'Meeting With Teacher',
-                    style: textStyle(Colors.black, 14, 0, FontWeight.normal),
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  context.pushReplacement(Routes.meetingWithTeacher);
-                },
-              )),
-          7.height,
-          SizedBox(
-              height: 40,
-              child: ListTile(
-                leading: Image.asset(
-                  'assets/icons/meeting_with_office.png',
-                  scale: 12,
-                ),
-                title: Transform(
-                  transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                  child: Text(
-                    'Meeting With Office',
-                    style: textStyle(Colors.black, 14, 0, FontWeight.normal),
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  context.pushReplacement(Routes.meetingWithOffice);
-                },
-              )),
-          7.height,
-          SizedBox(
-              height: 40,
-              child: ListTile(
-                leading: Image.asset(
-                  'assets/icons/message_to_teacher.png',
-                  scale: 12,
-                ),
-                title: Transform(
-                  transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                  child: Text(
-                    'Message To Teacher',
-                    style: textStyle(Colors.black, 14, 0, FontWeight.normal),
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  context.pushReplacement(Routes.messageToTeacher);
-                },
-              )),
-          7.height,
-          SizedBox(
-              height: 40,
-              child: ListTile(
-                leading: Image.asset(
-                  'assets/icons/message_to_office.png',
-                  scale: 12,
-                ),
-                title: Transform(
-                  transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                  child: Text(
-                    'Message To Office',
-                    style: textStyle(Colors.black, 14, 0, FontWeight.normal),
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  context.pushReplacement(Routes.messageToOffice);
-                },
-              )),
-          7.height,
-          SizedBox(
-              height: 40,
-              child: ListTile(
-                leading: Image.asset(
-                  'assets/icons/user.png',
-                  scale: 12,
-                ),
-                title: Transform(
-                  transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                  child: Text(
-                    'Work in Progress',
-                    style: textStyle(Colors.black, 14, 0, FontWeight.normal),
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  context.pushReplacement(Routes.lessonProgress);
-                },
-              )),
-          7.height,
-          SizedBox(
-              height: 40,
-              child: ListTile(
-                leading: Image.asset(
-                  'assets/icons/user.png',
-                  scale: 12,
-                ),
-                title: Transform(
-                  transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                  child: Text(
-                    'Photos',
-                    style: textStyle(Colors.black, 14, 0, FontWeight.normal),
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  context.pushReplacement(Routes.studentPhotos);
-                },
-              )),
-          7.height,
-          SizedBox(
-              height: 40,
-              child: ListTile(
-                leading: Image.asset(
-                  'assets/icons/user.png',
-                  scale: 12,
-                ),
-                title: Transform(
-                  transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                  child: Text(
-                    'Settings',
-                    style: textStyle(Colors.black, 14, 0, FontWeight.normal),
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  context.pushReplacement(Routes.setReminder);
-                },
-              )),
-          7.height,
-          SizedBox(
-              height: 40,
-              child: ListTile(
-                leading: Image.asset(
-                  'assets/icons/user.png',
-                  scale: 12,
-                ),
-                title: Transform(
-                  transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                  child: Text(
-                    'Profile',
-                    style: textStyle(Colors.black, 14, 0, FontWeight.normal),
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  context.pushReplacement(Routes.accountInfo);
-                },
-              )),
-          7.height,
-          SizedBox(
-              height: 40,
-              child: ListTile(
-                leading: Image.asset(
-                  'assets/icons/user.png',
-                  scale: 12,
-                ),
-                title: Transform(
-                  transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                  child: Text(
-                    'Change Password',
-                    style: textStyle(Colors.black, 14, 0, FontWeight.normal),
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  context.pushReplacement(Routes.changePassword);
-                },
-              )),
-          7.height,
-          SizedBox(
-              height: 40,
-              child: ListTile(
-                leading: Image.asset(
-                  'assets/icons/remove.png',
-                  scale: 12,
-                ),
-                title: Transform(
-                  transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                  child: Text(
-                    'Delete Account',
-                    style: textStyle(Colors.black, 14, 0, FontWeight.normal),
-                  ),
-                ),
-                onTap: () async {
-                  Navigator.pop(context);
 
-                  showDeleteAccountAlertDialog(context,"Delete Account","Are you sure to delete account permanently?");
-                },
-              )),
-          7.height,
-          SizedBox(
-              height: 40,
-              child: ListTile(
-                leading: Image.asset(
-                  'assets/icons/logout.png',
-                  scale: 12,
-                ),
-                title: Transform(
-                  transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                  child: Text(
-                    'Logout',
-                    style: textStyle(Colors.black, 14, 0, FontWeight.normal),
+            7.height,
+            SizedBox(
+                height: 50,
+                child: ListTile(
+                  title: Transform(
+                    transform: Matrix4.translationValues(-10, 0.0, 0.0),
+                    child: Text(
+                      'Delete Account',
+                      style: textStyle(Colors.black, 16, 0, FontWeight.normal),
+                    ),
                   ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  SharedPrefs().setIsLogin(false);
-                  SharedPrefs().reset();
+                  onTap: () async {
+                    Navigator.pop(context);
 
-                  context.go(Routes.signIn);
-                },
-              )),
-          7.height,
-        ],
-      ),
-    );
+                    showDeleteAccountAlertDialog(context, "Delete Account",
+                        "Are you sure to delete account permanently?");
+                  },
+                )),
+            7.height,
+            SizedBox(
+                height: 50,
+                child: ListTile(
+                  title: Transform(
+                    transform: Matrix4.translationValues(-10, 0.0, 0.0),
+                    child: Text(
+                      'Logout',
+                      style: textStyle(Colors.black, 16, 0, FontWeight.normal),
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    SharedPrefs().setIsLogin(false);
+                    SharedPrefs().reset();
+
+                    context.go(Routes.signIn);
+                  },
+                )),
+            7.height,
+          ],
+        ));
   }
 
 /* Future<void> _launchUrl(Uri url) async {

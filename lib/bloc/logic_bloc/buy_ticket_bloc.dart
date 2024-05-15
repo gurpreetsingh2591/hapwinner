@@ -2,22 +2,23 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../data/api/ApiService.dart';
-import '../event/get_messages_event.dart';
+import '../event/tickets_event.dart';
 import '../state/common_state.dart';
 
-class BuyTicketBloc extends Bloc<MessageMenuEvent, CommonState> {
+class BuyTicketBloc extends Bloc<TicketsEvent, CommonState> {
   BuyTicketBloc() : super(InitialState()) {
-    on<GetSchoolMessageData>(_onGetSchoolMessageData);
-    on<GetTeacherMessageData>(_onGetTeacherMessageData);
+    on<GetTicketListData>(_onGetTicketListData);
+    on<GetBuyTicketsData>(_onGetBuyTicketsData);
+    on<GetMyWinTicketListData>(_onGetMyWinTicketListData);
   }
 
-  Future<void> _onGetSchoolMessageData(
-      GetSchoolMessageData event, Emitter<CommonState> emit) async {
+  Future<void> _onGetTicketListData(
+      GetTicketListData event, Emitter<CommonState> emit) async {
     // Handle the Get User Data event
     emit(LoadingState());
 
     try {
-      dynamic getUserData = await ApiService().getSchoolMessages(event.studentId);
+      dynamic getUserData = await ApiService().getTicketList(event.token);
       // Process the API response
       // Emit a success state
       if (kDebugMode) {
@@ -30,19 +31,46 @@ class BuyTicketBloc extends Bloc<MessageMenuEvent, CommonState> {
     }
   }
 
-  Future<void> _onGetTeacherMessageData(
-      GetTeacherMessageData event, Emitter<CommonState> emit) async {
+  Future<void> _onGetMyWinTicketListData(
+      GetMyWinTicketListData event, Emitter<CommonState> emit) async {
     // Handle the Get User Data event
     emit(LoadingState());
 
     try {
-      dynamic getUserData = await ApiService().getTeacherMessages(event.studentId);
+      dynamic getUserData = await ApiService().getMyWinTicketList(event.token);
       // Process the API response
       // Emit a success state
       if (kDebugMode) {
         print(getUserData);
       }
-      emit(UserDataSuccessState(getUserData));
+      emit(SuccessState(getUserData));
+    } catch (error) {
+      // Emit a failure state
+      emit(FailureState(error.toString()));
+    }
+  }
+
+  Future<void> _onGetBuyTicketsData(
+      GetBuyTicketsData event, Emitter<CommonState> emit) async {
+    // Handle the Get User Data event
+    emit(LoadingState());
+
+    try {
+      dynamic getUserData = await ApiService().getBuyTicketsMessages(
+          event.userId,
+          event.lotteryId,
+          event.ticketNumber,
+          event.paymentStatus,
+          event.countryId,
+          event.amount,
+          event.transactionType,
+          event.transactionId,event.token);
+      // Process the API response
+      // Emit a success state
+      if (kDebugMode) {
+        print(getUserData);
+      }
+      emit(SuccessState(getUserData));
     } catch (error) {
       // Emit a failure state
       emit(FailureState(error.toString()));

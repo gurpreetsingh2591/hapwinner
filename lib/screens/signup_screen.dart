@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hap_winner_project/utils/extensions/extensions.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -58,6 +59,8 @@ class SignUpPageState extends State<SignUpPage> {
   bool dialogShown = false;
   final signupBloc = SignUpBloc();
   String? fcmToken;
+  final GoogleSignIn _googleSignIn =
+  GoogleSignIn(scopes: ['email', 'profile',]);
 
   @override
   void initState() {
@@ -77,6 +80,30 @@ class SignUpPageState extends State<SignUpPage> {
       Future.delayed(Duration.zero, () {
         context.go(Routes.mainHome);
       });
+    }
+
+    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
+      // Triggered when the current user changes
+      // You can handle sign in success here
+      if (account != null) {
+        if (kDebugMode) {
+          print('User signed in: ${account.email}');
+        }
+        if (kDebugMode) {
+          print('User social id: ${account.id}');
+        }
+        loginBloc.add(GetSocialLoginData(
+            emailId: account.email,
+            socialId: account.id,
+            name: account.displayName!));
+      }
+    });
+  }
+  Future<void> _handleSignIn() async {
+    try {
+      await _googleSignIn.signIn();
+    } catch (error) {
+      print('Error signing in: $error');
     }
   }
 
@@ -220,10 +247,7 @@ class SignUpPageState extends State<SignUpPage> {
       SharedPrefs().setUserFullName(userData['result']['studentname']);
       SharedPrefs().setUserEmail(userData['result']['vchmomemail']);
       SharedPrefs().setStudentId(userData['result']['studentid']);
-      SharedPrefs().setParentId(userData['result']['parentid']);
-      SharedPrefs()
-          .setStudentCount(userData['result']['studuent_count'].toString());
-      SharedPrefs().setStudentMomName(userData['result']['mom']);
+      SharedPrefs().setUserToken(userData['result']['parentid']);
 
       List<Map<String, dynamic>> students = [];
       if (userData['students_list'] != null) {
@@ -234,7 +258,6 @@ class SignUpPageState extends State<SignUpPage> {
                 .map((student) => student as Map<String, dynamic>)
                 .toList(),
           );
-          SharedPrefs().saveStudents(students);
         }
       }
       if (kDebugMode) {
@@ -433,8 +456,8 @@ class SignUpPageState extends State<SignUpPage> {
               child: Container(
                 alignment: Alignment.center,
                 child: Text(
-                  "Sign up with Email",
-                  style: textStyle(Colors.white, 20, 0, FontWeight.normal),
+                  "Sign up with Email/Mobile",
+                  style: textStyle(Colors.white, 18, 0, FontWeight.normal),
                 ),
               ),
             ),

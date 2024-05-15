@@ -63,13 +63,12 @@ class BottomButtonWidget extends StatelessWidget {
                         textAlign: TextAlign.center,
                         TextSpan(
                           text:
-                              AppLocalizations.of(context).translate(subTitle),
+                             subTitle,
                           style: textStyle(
                               Colors.white54, 14, 0.5, FontWeight.w400),
                           children: <TextSpan>[
                             TextSpan(
-                                text: AppLocalizations.of(context)
-                                    .translate('agree_terms2'),
+                                text: 'agree_terms2',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,
@@ -78,8 +77,7 @@ class BottomButtonWidget extends StatelessWidget {
                                   decoration: TextDecoration.underline,
                                 )),
                             TextSpan(
-                              text: AppLocalizations.of(context)
-                                  .translate('agree_terms3'),
+                              text: 'agree_terms3',
                               style: textStyle(
                                   Colors.white54, 14, 0.5, FontWeight.w400),
                             ),
@@ -108,8 +106,7 @@ class BottomButtonWidget extends StatelessWidget {
                                   margin: const EdgeInsets.only(bottom: 20),
                                   alignment: Alignment.topCenter,
                                   child: Text(
-                                    AppLocalizations.of(context)
-                                        .translate(title),
+                                    title,
                                     style: textStyle(
                                         titleTextColor, 16, 0.5, FontWeight.w400),
                                   ),

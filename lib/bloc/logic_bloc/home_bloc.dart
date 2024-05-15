@@ -3,17 +3,37 @@ import 'package:flutter/foundation.dart';
 
 import '../../data/api/ApiService.dart';
 
-import '../event/testimonials_event.dart';
-import '../state/meeting_state.dart';
+import '../event/home_event.dart';
+import '../state/home_state.dart';
 
-class HomeBloc extends Bloc<TestimonialsEvent, MeetingState> {
+class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeBloc() : super(InitialState()) {
+    on<GetHomeData>(onGetHomeData);
     on<GetTestimonialsVideo>(onGetTestimonialsVideo);
-    on<BookOfficeTimeSlotButtonPressed>(onBookOfficeTimeSlotButtonPressed);
   }
 
+  Future<void> onGetHomeData(
+      GetHomeData event, Emitter<HomeState> emit) async {
+    // Handle the Get User Data event
+    emit(LoadingState());
+
+    try {
+      dynamic getData = await ApiService()
+          .getHomeScreenData(event.token);
+      // Process the API response
+      // Emit a success state
+
+      if (kDebugMode) {
+        print(getData);
+      }
+      emit(GetHomeState(getData));
+    } catch (error) {
+      // Emit a failure state
+      emit(FailureState(error.toString()));
+    }
+  }
   Future<void> onGetTestimonialsVideo(
-      GetTestimonialsVideo event, Emitter<MeetingState> emit) async {
+      GetTestimonialsVideo event, Emitter<HomeState> emit) async {
     // Handle the Get User Data event
     emit(LoadingState());
 
@@ -26,28 +46,11 @@ class HomeBloc extends Bloc<TestimonialsEvent, MeetingState> {
       if (kDebugMode) {
         print(getSlots);
       }
-      emit(GetOfficeSlotState(getSlots));
+      emit(GetTestimonialsState(getSlots));
     } catch (error) {
       // Emit a failure state
       emit(FailureState(error.toString()));
     }
   }
 
-  Future<void> onBookOfficeTimeSlotButtonPressed(
-      BookOfficeTimeSlotButtonPressed event, Emitter<MeetingState> emit) async {
-    // Handle the Get User Data event
-    emit(LoadingState());
-
-    try {
-      dynamic getUserData = await ApiService()
-          .getOfficeBookTimeSlot(event.parentId, event.date, event.time);
-      // Process the API response
-      // Emit a success state
-
-      emit(GetOfficeBookingSuccessState(getUserData));
-    } catch (error) {
-      // Emit a failure state
-      emit(FailureState(error.toString()));
-    }
-  }
 }

@@ -4,65 +4,58 @@ import '../utils/constant.dart';
 
 class TicketItemWidget extends StatelessWidget {
   final String name;
-  final bool closeIconVisibility;
+  final String ticket;
   final VoidCallback onTap;
 
   const TicketItemWidget({
     Key? key,
     required this.name,
-    required this.closeIconVisibility,
     required this.onTap,
+    required this.ticket,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        onTap();
-      },
-      child: Container(
-          padding: const EdgeInsets.all(10),
-          decoration: kWinnerDecoration,
-          alignment: Alignment.center,
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                        padding: const EdgeInsets.all(5),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(25.0),
-                          child: Image.asset(
-                            "assets/first.png",
-                            scale: 8,
+        onTap: () {
+          onTap();
+        },
+        child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: kWinnerDecoration,
+            alignment: Alignment.center,
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    flex: 3,
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(5),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(25.0),
+                              child: Image.asset(
+                                "assets/testimonial.png",
+                                scale: 7,
+                              ),
+                            ),
                           ),
-                        )),
-                    10.width,
-                    Container(
-                      padding: const EdgeInsets.all(5),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(25.0),
-                        child: Image.asset(
-                          "assets/testimonial.png",
-                          scale: 7,
-                        ),
-                      ),
-                    ),
-                    10.width,
-                    Container(
-                        alignment: Alignment.center,
+                          10.width,
+                          Flexible(child: Text(name.allInCaps)),
+                        ]),
+                  ),
+                  Flexible(
+                    flex: 2,
+                    child: Container(
+                        alignment: Alignment.centerRight,
                         child: Text(
-                          name,
+                          ticket,
                           style:
                               textStyle(Colors.white, 18, 0, FontWeight.normal),
-                        ))
-                  ],
-                ),
-                Text("Shushma, Assam".allInCaps),
-              ])),
-    );
+                        )),
+                  ),
+                ])));
   }
 }
