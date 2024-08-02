@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../utils/constant.dart';
 import '../utils/themes/colors.dart';
 
 class OtpTimer extends StatefulWidget {
@@ -32,11 +33,12 @@ class OtpTimerState extends State<OtpTimer> {
   Widget build(BuildContext context) {
     return Text(
       '00:$_currentSecond',
-      style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w400,
-          fontFamily: 'DPClear',
-          color: accent),
+      style: textStyle(
+        appBaseColor,
+        18,
+        0,
+        FontWeight.w400,
+      ),
     );
   }
 

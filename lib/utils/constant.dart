@@ -5,7 +5,6 @@ import 'package:hap_winner_project/utils/themes/colors.dart';
 
 import '../bloc/logic_bloc/login_bloc.dart';
 
-final loginBloc = LoginBloc();
 
 ///Fcm Strings
 const String kCollectionId = "hp_printer";
@@ -302,7 +301,7 @@ final kSelectedTicketDecoration = BoxDecoration(
   borderRadius: BorderRadius.circular(15),
 );
 final kWinnerDecoration = BoxDecoration(
-  color: kFacebookColor,
+  color: pink,
   borderRadius: BorderRadius.circular(5),
 );
 const kPIBgDecoration = BoxDecoration(
@@ -311,6 +310,10 @@ const kPIBgDecoration = BoxDecoration(
 final kDialogBgDecoration = BoxDecoration(
   border: Border.all(color: Colors.white),
   borderRadius: BorderRadius.circular(15),
+);
+final kBgBorderDecoration = BoxDecoration(
+  border: Border.all(color: Colors.white),
+  borderRadius: BorderRadius.circular(25),
 );
 
 final kDialogBgDecorationSecondary = BoxDecoration(

@@ -65,7 +65,7 @@ class SignUpWithEmailState extends State<SignUpWithEmailPage> {
     'email',
     'profile',
   ]);
-
+  final loginBloc = LoginBloc();
   @override
   void initState() {
     super.initState();
@@ -213,6 +213,8 @@ class SignUpWithEmailState extends State<SignUpWithEmailPage> {
 
   userDataAPI(dynamic loginSuccess, bool isSocial) {
     if (loginSuccess['status'] == 401 && !dialogShown) {
+      toast("Already Registered , Please try with another email/mobile ", false);
+
       Future.delayed(Duration.zero, () {
         dialogShown = true;
         showCustomToast();
@@ -300,7 +302,7 @@ class SignUpWithEmailState extends State<SignUpWithEmailPage> {
     return BlocProvider(
         create: (context) => signupBloc,
         child: Scaffold(
-          resizeToAvoidBottomInset: true,
+          resizeToAvoidBottomInset: false,
           body: BlocBuilder<SignUpBloc, CommonState>(
             builder: (context, state) {
               if (state is LoadingState) {
@@ -437,6 +439,8 @@ class SignUpWithEmailState extends State<SignUpWithEmailPage> {
                 alignment: Alignment.center,
                 child: ElevatedButton(
                     onPressed: () {
+                      FocusScope.of(context).unfocus();
+
                       /*Future.delayed(Duration.zero, () {
                         context.go(Routes.mainHome);
                       });*/

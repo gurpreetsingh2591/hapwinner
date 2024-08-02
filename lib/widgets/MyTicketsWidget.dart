@@ -28,8 +28,7 @@ class MyTicketsWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Row(mainAxisAlignment: MainAxisAlignment.start, children: [
             Container(
               alignment: Alignment.topLeft,
               child: Text(
@@ -38,9 +37,10 @@ class MyTicketsWidget extends StatelessWidget {
                 style: textStyle(Colors.white, 18, 0, FontWeight.w400),
               ),
             ),
+            10.width,
             Flexible(
               child: Container(
-                alignment: Alignment.center,
+                alignment: Alignment.topLeft,
                 child: Text(
                   list.tickets[0].lottery.lotteryName,
                   textAlign: TextAlign.center,
@@ -75,29 +75,27 @@ class MyTicketsWidget extends StatelessWidget {
                 ),
               ]),
           15.height,
-          Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  alignment: Alignment.topLeft,
-                  child: Text(
-                    'Amount :',
-                    textAlign: TextAlign.center,
-                    style: textStyle(Colors.white, 18, 0, FontWeight.w500),
-                  ),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Container(
+              alignment: Alignment.topLeft,
+              child: Text(
+                'Amount :',
+                textAlign: TextAlign.center,
+                style: textStyle(Colors.white, 18, 0, FontWeight.w500),
+              ),
+            ),
+            10.width,
+            Flexible(
+              child: Container(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  '${list.amount}',
+                  textAlign: TextAlign.center,
+                  style: textStyle(Colors.white, 18, 0, FontWeight.w500),
                 ),
-                10.width,
-                Flexible(
-                  child: Container(
-                    alignment: Alignment.topLeft,
-                    child: Text(
-                      '${list.amount}',
-                      textAlign: TextAlign.center,
-                      style: textStyle(Colors.white, 18, 0, FontWeight.w500),
-                    ),
-                  ),
-                )
-              ]),
+              ),
+            )
+          ]),
           15.height,
           Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -110,7 +108,8 @@ class MyTicketsWidget extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: textStyle(Colors.white, 18, 0, FontWeight.w500),
                   ),
-                ),10.width,
+                ),
+                10.width,
                 Flexible(
                   child: Container(
                     alignment: Alignment.topLeft,

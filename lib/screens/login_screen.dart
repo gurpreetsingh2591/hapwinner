@@ -65,8 +65,10 @@ class LoginPageState extends State<LoginPage> {
   final signupBloc = SignUpBloc();
   String? fcmToken;
   String? _selectedOption = "otp";
-  final GoogleSignIn _googleSignIn =
-      GoogleSignIn(scopes: ['email', 'profile',]);
+  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: [
+    'email',
+    'profile',
+  ]);
 
   final List<ChecklistItem> _items = [
     ChecklistItem('Item 1'),
@@ -247,9 +249,13 @@ class LoginPageState extends State<LoginPage> {
     }
   }
 
-  userDataAPI(dynamic loginSuccess,bool isSocial) {
-    print("login data---$loginSuccess");
+  userDataAPI(dynamic loginSuccess, bool isSocial, bool isLoginWithOtp) {
+    if (kDebugMode) {
+      print("login data---$loginSuccess");
+    }
     if (loginSuccess['status'] == 401 && !dialogShown) {
+
+      toast("Invalid Credentials, Please try again ", false);
       Future.delayed(Duration.zero, () {
         dialogShown = true;
         showCustomToast();
@@ -257,23 +263,22 @@ class LoginPageState extends State<LoginPage> {
     } else {
       if (loginSuccess['status'] == 200) {
         if (!switchScreen) {
-          dialogShown = false;
           wrongError = false;
           switchScreen = true;
-          getUserData(loginSuccess,isSocial);
+          getUserData(loginSuccess, isSocial, isLoginWithOtp);
         }
       }
     }
   }
 
-  getUserData(dynamic userData,bool isSocial) {
+  getUserData(dynamic userData, bool isSocial, bool isLoginWithOtp) {
     if (userData != null || userData != "") {
       if (kDebugMode) {
         print("get user data api$userData");
       }
       passwordError = false;
       emailError = false;
-      if(isSocial){
+      if (isSocial) {
         SharedPrefs().setStudentId(userData['data']['user']['id'].toString());
         SharedPrefs().setUserEmail(userData['data']['user']['email']);
         SharedPrefs().setUserToken(userData['data']['token']);
@@ -282,37 +287,36 @@ class LoginPageState extends State<LoginPage> {
         Future.delayed(Duration.zero, () {
           context.go(Routes.mainHome);
         });
-      }else {
-        if (_selectedOption == "password") {
-          SharedPrefs().setUserFullName(userData['data']['user']['name']);
-          SharedPrefs().setUserEmail(userData['data']['user']['email']);
-          SharedPrefs().setStudentId(userData['data']['user']['id'].toString());
-          bool isVerified = (userData['data']['user']['otpverified']);
-          SharedPrefs().setUserToken(userData['data']['token']);
+      } else if (!isLoginWithOtp) {
+        SharedPrefs().setUserFullName(userData['data']['user']['name']);
+        SharedPrefs().setUserEmail(userData['data']['user']['email']);
+        SharedPrefs().setStudentId(userData['data']['user']['id'].toString());
+        // bool isVerified = (userData['data']['user']['otpverified']);
+        SharedPrefs().setUserToken(userData['data']['token']);
 
-          if (isVerified == 1) {
-            SharedPrefs().setIsLogin(true);
-            Future.delayed(Duration.zero, () {
-              context.go(Routes.mainHome);
-            });
-          } else {
-            toast("Your account not verified", true);
-          }
-        } else {
-          SharedPrefs().setUserFullName(userData['data']['user']['name']);
-          SharedPrefs().setStudentId(userData['data']['user']['id'].toString());
-          SharedPrefs().setUserEmail(userData['data']['user']['email']);
-          //SharedPrefs().setUserToken(userData['data']['token']);
+        //if (isVerified == 1) {
+        SharedPrefs().setIsLogin(true);
+        Future.delayed(Duration.zero, () {
+          context.go(Routes.mainHome);
+        });
+        //} else {
+        // toast("Your account not verified", true);
+        //}
+      } else {
+        //SharedPrefs().setUserFullName(userData['data']['user']['name']);
+        SharedPrefs().setStudentId(userData['data']['user']['id'].toString());
+        SharedPrefs().setUserEmail(userData['data']['user']['email']);
+        //SharedPrefs().setUserToken(userData['data']['token']);
 
-          Future.delayed(Duration.zero, () {
-            //context.push(Routes.otpVerify);
+        Future.delayed(Duration.zero, () {
+          //context.push(Routes.otpVerify);
+          SharedPrefs().setIsLogin(false);
 
-            context.pushNamed('otpVerify', queryParameters: {
-              'id': SharedPrefs().getStudentId().toString(),
-              'type': 'login'
-            });
+          context.pushNamed('otpVerify', queryParameters: {
+            'id': SharedPrefs().getStudentId().toString(),
+            'type': 'login'
           });
-        }
+        });
       }
     }
   }
@@ -350,16 +354,19 @@ class LoginPageState extends State<LoginPage> {
     return BlocProvider(
         create: (context) => loginBloc,
         child: Scaffold(
-          resizeToAvoidBottomInset: true,
+          resizeToAvoidBottomInset: false,
           body: BlocBuilder<LoginBloc, CommonState>(
             builder: (context, state) {
               if (state is LoadingState) {
                 return buildHomeContainer(context, mq, true);
               } else if (state is SuccessState) {
-                userDataAPI(state.response,false);
+                userDataAPI(state.response, false, false);
+                return buildHomeContainer(context, mq, false);
+              } else if (state is LoginWithOTPSuccessState) {
+                userDataAPI(state.response, false, true);
                 return buildHomeContainer(context, mq, false);
               } else if (state is SocialLoginState) {
-                userDataAPI(state.response,true);
+                userDataAPI(state.response, true, false);
                 return buildHomeContainer(context, mq, false);
               } else if (state is FailureState) {
                 return buildHomeContainer(context, mq, false);
@@ -371,43 +378,45 @@ class LoginPageState extends State<LoginPage> {
   }
 
   Widget buildHomeContainer(BuildContext context, Size mq, bool isLoader) {
-    return Stack(children: [
-      Container(
+    return Container(
+
         decoration: boxImageBgDecoration(),
-        padding:
-            const EdgeInsets.only(right: 30, left: 30, top: 30, bottom: 10),
         constraints: const BoxConstraints.expand(),
-        child: ListView(
-          children: [
-            Center(
-              child: Image.asset(
-                "assets/splash_logo.png",
-                scale: 3,
-              ),
-            ),
-            10.height,
-            buildSignInContainer(context, mq),
-          ],
-        ),
-      ),
-      Visibility(
-          visible: isLoader,
-          child: Container(
-            height: 500,
-            margin: const EdgeInsets.only(bottom: 20, top: 80),
-            child: const Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
+        child: Stack(children: [
+          Container(
+            padding:
+                const EdgeInsets.only(right: 30, left: 30, top: 30, bottom: 10),
+            child: ListView(
               children: [
                 Center(
-                    child: SpinKitFadingCircle(
-                  color: kLightGray,
-                  size: 80.0,
-                ))
+                  child: Image.asset(
+                    "assets/splash_logo.png",
+                    scale: 3,
+                  ),
+                ),
+                10.height,
+                buildSignInContainer(context, mq),
               ],
             ),
-          ))
-    ]);
+          ),
+          Visibility(
+              visible: isLoader,
+              child: Container(
+                height: 500,
+                margin: const EdgeInsets.only(bottom: 20, top: 80),
+                child: const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Center(
+                        child: SpinKitFadingCircle(
+                      color: kLightGray,
+                      size: 80.0,
+                    ))
+                  ],
+                ),
+              ))
+        ]));
   }
 
   Widget buildSignInContainer(BuildContext context, Size mq) {
@@ -458,7 +467,9 @@ class LoginPageState extends State<LoginPage> {
             error: emailError,
             wrongError: wrongError,
             decoration: kEditTextDecoration,
-            padding: 0, leftIcon: true, enable: true,
+            padding: 0,
+            leftIcon: true,
+            enable: true,
           ),
           20.height,
           _selectedOption == "password"
@@ -499,6 +510,9 @@ class LoginPageState extends State<LoginPage> {
             alignment: Alignment.center,
             child: ElevatedButton(
                 onPressed: () {
+                  dialogShown = false;
+
+                  FocusScope.of(context).unfocus();
                   if (kDebugMode) {
                     print("object");
                   }
@@ -525,7 +539,11 @@ class LoginPageState extends State<LoginPage> {
           ),
           10.height,
           InkWell(
-            onTap: () async {},
+            onTap: () {
+              Future.delayed(Duration.zero, () {
+                context.push(Routes.forgotPassword);
+              });
+            },
             child: Container(
               margin: const EdgeInsets.all(10),
               alignment: Alignment.topRight,

@@ -13,7 +13,7 @@ class PreviousMonthWinner {
   final DateTime createdAt;
   final DateTime updatedAt;
   final Ticket ticket;
- // final UserDetails userDetails;
+  //final UserDetails? userDetails;
   final LotteryDetail lotteryDetail;
   final User user;
 
@@ -41,7 +41,7 @@ class PreviousMonthWinner {
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
       ticket: Ticket.fromJson(json['ticket']),
-      //userDetails: UserDetails.fromJson(json['userdetails']),
+     // userDetails: json['userdetails'] != null && json['userdetails'] != "null"? UserDetails.fromJson(json['userdetails']): null,
       lotteryDetail: LotteryDetail.fromJson(json['lottery']),
       user: User.fromJson(json['user']),
     );

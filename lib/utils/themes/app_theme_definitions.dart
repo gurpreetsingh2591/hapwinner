@@ -6,7 +6,7 @@ final ThemeData lightTheme = ThemeData(
   scaffoldBackgroundColor: appWhite,
   primaryColor: Colors.blue,
   primaryColorDark: Colors.white,
-  errorColor: Colors.red,
+  canvasColor: Colors.red,
   hoverColor: Colors.white54,
   dividerColor: appDividerColor,
   appBarTheme: const AppBarTheme(
@@ -17,8 +17,8 @@ final ThemeData lightTheme = ThemeData(
   iconTheme: const IconThemeData(color: appTextColorPrimary),
   bottomSheetTheme: const BottomSheetThemeData(backgroundColor: appWhite),
   textTheme: const TextTheme(
-    headline6: TextStyle(color: appTextColorPrimary),
-    subtitle2: TextStyle(color: appTextColorSecondary),
+    titleLarge: TextStyle(color: appTextColorPrimary),
+    titleSmall: TextStyle(color: appTextColorSecondary),
   ),
   visualDensity: VisualDensity.adaptivePlatformDensity,
 ).copyWith(

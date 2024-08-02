@@ -1,13 +1,15 @@
 import 'package:go_router/go_router.dart';
 import 'package:hap_winner_project/screens/buy_ticket_screen.dart';
+import 'package:hap_winner_project/screens/change_password_screen.dart';
+import 'package:hap_winner_project/screens/contact_us.dart';
+import 'package:hap_winner_project/screens/contest_detail.dart';
 import 'package:hap_winner_project/screens/home_screen.dart';
 import 'package:hap_winner_project/screens/my_cart_screen.dart';
 import 'package:hap_winner_project/screens/my_profile.dart';
 import 'package:hap_winner_project/screens/my_tickets_wins.dart';
+import 'package:hap_winner_project/screens/privacy_policy.dart';
 import 'package:hap_winner_project/screens/sign_up_with_email_screen.dart';
-import 'package:hap_winner_project/screens/signup_screen.dart';
-import 'package:hap_winner_project/screens/upcoming_draw_screen.dart';
-import 'package:hap_winner_project/widgets/OtpTimer.dart';
+import 'package:hap_winner_project/screens/forgot_password_screen.dart';
 
 import '../screens/login_screen.dart';
 import '../screens/my_past_tickets.dart';
@@ -24,7 +26,6 @@ class Routes {
   static const signIn = '/';
   static const forgotPassword = '/forgot_password';
   static const upcomingContest = '/upcoming_contest';
-  static const signup = '/signup';
   static const signupWithEmail = '/signup_with_email';
   static const thankYouPage = '/thank_you';
   static const otpVerify = '/otp_verify';
@@ -32,6 +33,10 @@ class Routes {
   static const myWinTicketsPage = '/my_win_tickets';
   static const myPastTicketsPage = '/my_past_tickets';
   static const myProfilePage = '/my_profile';
+  static const contestDetail = '/contest_detail';
+  static const privacy = '/privacy';
+  static const contactUs = '/contact_us';
+  static const changePassword = '/change_password';
 
   static const accountInfo = '/account-info';
   static const pairFailed = '/pair-failed';
@@ -47,7 +52,6 @@ class Routes {
   static const studentPhotos = '/student-photos';
   static const lessonProgress = '/lesson-progress';
   static const setReminder = '/set-reminder';
-  static const changePassword = '/changePassword';
 }
 
 GoRouter buildRouter() {
@@ -69,13 +73,10 @@ GoRouter buildRouter() {
         path: Routes.myCart,
         builder: (_, __) => const MyCartPage(),
       ),*/
+
       GoRoute(
-        path: Routes.upcomingContest,
-        builder: (_, __) => const UpComingDrawPage(),
-      ),
-      GoRoute(
-        path: Routes.signup,
-        builder: (_, __) => const SignUpPage(),
+        path: Routes.forgotPassword,
+        builder: (_, __) => const ForgotPasswordPage(),
       ),
       GoRoute(
         path: Routes.signupWithEmail,
@@ -100,6 +101,22 @@ GoRouter buildRouter() {
       GoRoute(
         path: Routes.myProfilePage,
         builder: (_, __) => const MyProfilePage(),
+      ),
+      GoRoute(
+        path: Routes.contestDetail,
+        builder: (_, __) => const ContestDetailPage(),
+      ),
+      GoRoute(
+        path: Routes.privacy,
+        builder: (_, __) => const PrivacyPolicyPage(),
+      ),
+      GoRoute(
+        path: Routes.contactUs,
+        builder: (_, __) => const ContactUsPage(),
+      ),
+      GoRoute(
+        path: Routes.changePassword,
+        builder: (_, __) => const ChangePasswordPage(),
       ),
       GoRoute(
         path: Routes.otpVerify,

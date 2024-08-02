@@ -21,27 +21,23 @@ class SuccessState extends CommonState {
 
   const SuccessState(this.response);
 }
-
-class UserDataSuccessState extends CommonState {
+class LoginWithOTPSuccessState extends CommonState {
   final dynamic response;
 
-  const UserDataSuccessState(this.response);
+  const LoginWithOTPSuccessState(this.response);
 }
-class TeacherSendSuccessState extends CommonState {
+class OTPSuccessState extends CommonState {
   final dynamic response;
 
-  const TeacherSendSuccessState(this.response);
+  const OTPSuccessState(this.response);
 }
-class TeacherSentListDataSuccessState extends CommonState {
+
+class ResendOTPSuccessState extends CommonState {
   final dynamic response;
 
-  const TeacherSentListDataSuccessState(this.response);
+  const ResendOTPSuccessState(this.response);
 }
-class UserEmailVerificationSuccessState extends CommonState {
-  final dynamic response;
 
-  const UserEmailVerificationSuccessState(this.response);
-}
 class SocialLoginState extends CommonState {
   final dynamic response;
 

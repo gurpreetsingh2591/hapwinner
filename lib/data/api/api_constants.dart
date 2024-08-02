@@ -11,8 +11,10 @@ class ApiConstants {
   static String apiLogin = "login";
   static String apiLoginOtp = "loginotp";
   static String apiLoginOtpVerify = "otpvarify";
+  static String apiResendOtp = "resendotp";
   static String apiTestimonials = "testimonials";
   static String apiHomepage = "homepage";
+  static String apiCurrentContest = "currentcontest";
   static String apiTicketList = "ticket_list";
   static String apiMyTicket = "myticket";
   static String apiBuyTicket = "tickets";
@@ -20,12 +22,20 @@ class ApiConstants {
   static String apiMyPastTicket = "usertickets";
   static String apiSignupSocial = "signupsocial";
   static String apiProfileUpdate = "profileupdate";
+  static String apiForgetPassword = "forgetpassword";
+  static String apiTermsConditions = "terms_conditions";
+  static String apiContact = "contact";
+  static String apiChangePassword = "changepassword";
+  static String apiDeleteAccount = "deleteaccount";
 
 
 
   //constant parameters
   static String email="email";
+  static String subject="subject";
+  static String message="message";
   static String password="password";
+  static String passwordConfirmation="password_confirmation";
   static String name="name";
   static String phoneNumber="phone_number";
   static String dob="dateofbirth";
@@ -47,6 +57,8 @@ class ApiConstants {
   static String transactionId="transation_id";
   static String mailId="mail_id";
   static String facebookId="facebookId";
+  static String socialId="social_id";
+  static String id="id";
 
   static String studentId="student_id=";
   static String subjectId="&subjectid=";

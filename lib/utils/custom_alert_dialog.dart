@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hap_winner_project/utils/themes/colors.dart';
 
+import 'constant.dart';
+
 
 
 class CustomAlertDialog extends StatelessWidget {
@@ -82,4 +84,51 @@ class CustomAlertDialog extends StatelessWidget {
       },
     );
   }
+
+
+  showDeleteAccountAlertDialog(
+      BuildContext context,
+      String title,
+      String msg,
+      ) {
+    // set up the button
+    Widget okButton = TextButton(
+      child: const Text("Yes"),
+      onPressed: () {
+        Navigator.of(context, rootNavigator: true).pop();
+
+      },
+    );
+    Widget cancelButton = TextButton(
+      child: const Text("Cancel"),
+      onPressed: () {
+        Navigator.pop(context);
+
+        //Navigator.of(context, rootNavigator: true).pop();
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title:
+      Text(title, style: textStyle(Colors.black, 14, 0, FontWeight.normal)),
+      content: Text(
+        msg,
+        style: textStyle(Colors.black, 14, 0, FontWeight.normal),
+      ),
+      actions: [
+        cancelButton,
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
 }

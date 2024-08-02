@@ -21,6 +21,7 @@ Future<void> main() async {
     }
   }
 
+
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -47,4 +48,6 @@ Future<void> main() async {
           ),
         ),
       )));
+
+
 }

@@ -16,6 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../bloc/logic_bloc/buy_ticket_bloc.dart';
 import '../bloc/logic_bloc/my_ticket_bloc.dart';
 import '../bloc/state/common_state.dart';
+import '../model/MyWinsModel.dart';
 import '../model/TicketNumbersResponse.dart';
 import '../model/my_tickets/UserContestTicket.dart';
 import '../widgets/ColoredSafeArea.dart';
@@ -23,6 +24,7 @@ import '../utils/constant.dart';
 import '../utils/shared_prefs.dart';
 import '../utils/themes/colors.dart';
 import '../widgets/MyTicketsWidget.dart';
+import '../widgets/MyWinTicketsWidget.dart';
 import '../widgets/TopBarWidget.dart';
 
 class MyTicketsWinsPage extends StatefulWidget {
@@ -40,7 +42,7 @@ class MyTicketsWinState extends State<MyTicketsWinsPage> {
   String token = "";
   final buyTicketBloc = BuyTicketBloc();
 
-  List<UserContestTicket> myTicketList = [];
+  List<MyWinTicket> myTicketList = [];
 
   // Current selected value
   String? _selectedItem;
@@ -64,7 +66,7 @@ class MyTicketsWinState extends State<MyTicketsWinsPage> {
 
     if (ticketList != "") {
       myTicketList = (ticketList as List)
-          .map((item) => UserContestTicket.fromJson(item))
+          .map((item) => MyWinTicket.fromJson(item))
           .toList();
     }
     isLoader=true;
@@ -166,7 +168,7 @@ class MyTicketsWinState extends State<MyTicketsWinsPage> {
               primary: false,
               itemCount: myTicketList.length,
               itemBuilder: (BuildContext context, int index) {
-                return MyTicketsWidget(
+                return MyWinTicketsWidget(
                   onTap: () {},
                   decoration: kGradientBoxDecoration,
                   list: myTicketList[index],

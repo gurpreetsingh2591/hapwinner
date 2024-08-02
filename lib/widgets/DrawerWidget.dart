@@ -1,46 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hap_winner_project/bloc/event/login_event.dart';
+import 'package:hap_winner_project/bloc/logic_bloc/home_bloc.dart';
+import 'package:hap_winner_project/bloc/logic_bloc/login_bloc.dart';
 import 'package:hap_winner_project/utils/extensions/extensions.dart';
 
 import '../app/router.dart';
+import '../bloc/event/home_event.dart';
 import '../data/api/ApiService.dart';
 import '../model/CommonResponse.dart';
 import '../utils/constant.dart';
 import '../utils/shared_prefs.dart';
 import '../utils/toast.dart';
 
-final Uri _url = Uri.parse('https://flutter.dev');
-
 class DrawerWidget extends StatelessWidget {
   final BuildContext contexts;
+  final HomeBloc homeBloc;
 
   const DrawerWidget({
     Key? key,
     required this.contexts,
+    required this.homeBloc,
   }) : super(key: key);
-
-  Future<void> yesClick(BuildContext context) async {
-    Navigator.of(context, rootNavigator: true).pop();
-
-    //  showVerifyEmailLoader(context,true);
-
-    dynamic getUserData = await ApiService()
-        .getDeleteUserData(SharedPrefs().getUserToken().toString());
-
-    // Ensure listener fires
-    var deleteUser = CommonResponse.fromJson(getUserData);
-    dynamic status = deleteUser.status;
-    String message = deleteUser.message;
-
-    if (status == 200) {
-      toast(message, false);
-      SharedPrefs().setIsLogin(false);
-      SharedPrefs().reset();
-      context.go(Routes.signIn);
-    }
-    // Navigator.pop(context);
-  }
 
   cancelClick(BuildContext context) {
     Navigator.pop(context);
@@ -55,7 +37,8 @@ class DrawerWidget extends StatelessWidget {
     Widget okButton = TextButton(
       child: const Text("Yes"),
       onPressed: () {
-        yesClick(contexts);
+        Navigator.of(contexts, rootNavigator: true).pop();
+        homeBloc.add(GetDeleteAccountData(id: SharedPrefs().getStudentId().toString()));
       },
     );
     Widget cancelButton = TextButton(
@@ -90,35 +73,6 @@ class DrawerWidget extends StatelessWidget {
     );
   }
 
-  showVerifyEmailLoader(BuildContext context, bool isLoading) {
-    showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          return Visibility(
-              visible: isLoading,
-              child: Dialog(
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Center(
-                    child: Container(
-                      height: 100,
-                      width: 100,
-                      padding: const EdgeInsets.all(20),
-                      decoration: kDialogBgDecorationSecondary,
-                      child: const SpinKitFadingCircle(
-                        color: Colors.white,
-                        size: 50.0,
-                      ),
-                    ),
-                  ),
-                ),
-              ));
-        });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -137,6 +91,7 @@ class DrawerWidget extends StatelessWidget {
                 'assets/logo.png',
               ),
             ),
+            10.height,
             SizedBox(
                 height: 50,
                 child: ListTile(
@@ -149,23 +104,9 @@ class DrawerWidget extends StatelessWidget {
                   ),
                   onTap: () {
                     Navigator.pop(context);
-                    context.pushReplacement(Routes.mainHome);
-                  },
-                )),
-            7.height,
-            SizedBox(
-                height: 50,
-                child: ListTile(
-                  title: Transform(
-                    transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                    child: Text(
-                      'History',
-                      style: textStyle(Colors.black, 16, 0, FontWeight.normal),
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                    //context.pushReplacement(Routes.lunchMenu);
+                    Future.delayed(Duration.zero, () {
+                      context.pushReplacement(Routes.mainHome);
+                    });
                   },
                 )),
             7.height,
@@ -181,7 +122,10 @@ class DrawerWidget extends StatelessWidget {
                 ),
                 onTap: () {
                   Navigator.pop(context);
-                 // context.pushReplacement(Routes.snackMenu);
+                  Future.delayed(Duration.zero, () {
+                    context.push(Routes.privacy);
+                  });
+                  // context.pushReplacement(Routes.snackMenu);
                 },
               ),
             ),
@@ -198,11 +142,13 @@ class DrawerWidget extends StatelessWidget {
                 ),
                 onTap: () {
                   Navigator.pop(context);
-                 // context.pushReplacement(Routes.schoolCalender);
+                  Future.delayed(Duration.zero, () {
+                    context.push(Routes.contactUs);
+                  });
+                  // context.pushReplacement(Routes.schoolCalender);
                 },
               ),
             ),
-
             7.height,
             SizedBox(
                 height: 50,

@@ -53,6 +53,7 @@ class OtpVerificationScreenState extends State<OtpVerificationScreen> {
   bool dialogShown = false;
   bool switchScreen = false;
   FToast fToast = FToast();
+  final loginBloc = LoginBloc();
 
   @override
   void initState() {
@@ -75,6 +76,22 @@ class OtpVerificationScreenState extends State<OtpVerificationScreen> {
         user: widget.userId, otp: otp, usertype: widget.userType));
   }
 
+  void resendData(dynamic response) {
+    if (response['status'] == 401) {
+      Future.delayed(Duration.zero, () {
+        dialogShown = true;
+        showCustomToast();
+      });
+    } else {
+      if (response['status'] == 200) {
+        if (!switchScreen) {
+          toast("OTP Resend Successfully", false);
+          switchScreen = true;
+        }
+      }
+    }
+  }
+
   userDataAPI(dynamic loginSuccess) {
     print("login data---$loginSuccess");
     if (loginSuccess['status'] == 401 && !dialogShown) {
@@ -84,7 +101,7 @@ class OtpVerificationScreenState extends State<OtpVerificationScreen> {
       });
     } else {
       if (loginSuccess['status'] == 200) {
-        if(!switchScreen) {
+        if (!switchScreen) {
           dialogShown = false;
           switchScreen = true;
           getUserData(loginSuccess);
@@ -94,10 +111,8 @@ class OtpVerificationScreenState extends State<OtpVerificationScreen> {
   }
 
   showCustomToast() {
-
-
     Widget toast = const CustomToastWidget(
-      msg: 'Invalid OTP. Please try again.',
+      msg: 'Otp not send. Please try again.',
       image: 'assets/ic_wrong_alert.png',
       email: "",
       scale: 2,
@@ -133,33 +148,10 @@ class OtpVerificationScreenState extends State<OtpVerificationScreen> {
     }
   }
 
-/*
-  void _getResendOTPData(BuildContext context) async {
-    _forgotPasswordModel = await ApiService().getUserForgotPassword(widget.email, context);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      //valueNotifier.value = _pcm; //provider
-      setState(() {
-        setState(() {
-          isTimeUp = false;
-        });
-        Navigator.of(context, rootNavigator: true).pop();
-        if (_forgotPasswordModel['http_code'] != 200) {
-          Navigator.of(context, rootNavigator: true).pop();
-          toast(_forgotPasswordModel["message"], false);
-        } else {
-          if (_forgotPasswordModel['message'] == 'failed') {
-            toast(
-                "Your email address is not exists, Please enter register email address",
-                false);
-          } else {
-            toast("OTP Sent on your email address: ${widget.email}", false);
-          }
-        }
-      });
-    });
+  void _getResendOTPData() {
+    loginBloc.add(OTPResendButtonPressed(
+        userId: SharedPrefs().getStudentId().toString()));
   }
-*/
 
   Future<void> initializePreference() async {
     SharedPrefs.init(await SharedPreferences.getInstance());
@@ -176,9 +168,11 @@ class OtpVerificationScreenState extends State<OtpVerificationScreen> {
             builder: (context, state) {
               if (state is LoadingState) {
                 return buildHomeContainer(context, mq, true);
-              } else if (state is SuccessState) {
-
+              } else if (state is OTPSuccessState) {
                 userDataAPI(state.response);
+                return buildHomeContainer(context, mq, false);
+              } else if (state is ResendOTPSuccessState) {
+                resendData(state.response);
                 return buildHomeContainer(context, mq, false);
               } else if (state is FailureState) {
                 return buildHomeContainer(context, mq, false);
@@ -190,7 +184,7 @@ class OtpVerificationScreenState extends State<OtpVerificationScreen> {
   }
 
   Widget buildHomeContainer(BuildContext context, Size mq, bool isLoading) {
-    return  Stack(
+    return Stack(
       children: [
         Container(
           decoration: boxImageBgDecoration(),
@@ -291,15 +285,14 @@ class OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     if (otp == "") {
                       const CustomAlertDialog().errorDialog(kOTPError, context);
                     } else {
-                      setState(() {
-                        // showCenterLoader(context);
-                        _getVerifyOTPData();
-                      });
+                      // setState(() {
+                      // showCenterLoader(context);
+                      _getVerifyOTPData();
+                      // });
                       // }
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.transparent,
                     shadowColor: Colors.transparent,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20), // <-- Radius
@@ -326,11 +319,11 @@ class OtpVerificationScreenState extends State<OtpVerificationScreen> {
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
       Text(loginText,
           textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 16,
-            color: Colors.white,
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w400,
+          style: textStyle(
+            Colors.white,
+            16,
+            0,
+            FontWeight.w400,
           )),
       MouseRegion(
           cursor: SystemMouseCursors.click,
@@ -339,8 +332,8 @@ class OtpVerificationScreenState extends State<OtpVerificationScreen> {
               setState(() {
                 isTimeUp = false;
                 isTimeStart = true;
-                showCenterLoader(context);
-                // _getResendOTPData(context);
+                // showCenterLoader(context);
+                _getResendOTPData();
                 _resendOtp();
               })
             },
@@ -348,11 +341,11 @@ class OtpVerificationScreenState extends State<OtpVerificationScreen> {
               visible: isTimeUp,
               child: Text(loginText1,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: accent,
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w400,
+                  style: textStyle(
+                    appBaseColor,
+                    18,
+                    0,
+                    FontWeight.w400,
                   )),
             ),
           )),

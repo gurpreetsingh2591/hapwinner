@@ -54,7 +54,6 @@ dependencies:
   json_serializable: ^6.7.1
   get: ^4.6.5
   provider: ^6.0.5
-  easy_localization: ^3.0.2
   just_the_tooltip: ^0.0.12
   flutter_linkify: ^6.0.0
   flutter_calendar_carousel: ^2.4.2
@@ -66,6 +65,9 @@ dependencies:
   otp_text_field: ^1.1.3
   flutter_otp_text_field: ^1.1.2
   google_sign_in: ^6.2.1
+  carousel_slider: ^4.2.1
+  flutter_widget_from_html: ^0.15.0
+  intl: ^0.18.0
 
 dev_dependencies:
   flutter_test:
@@ -80,6 +82,19 @@ dev_dependencies:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
+flutter_native_splash:
+  color: "#14004EFF"
+  image: assets/splash_logo.png
+  branding: assets/splash_logo.png
+  color_dark: "#14004EFF"
+  image_dark: assets/splash_logo.png
+  branding_dark: assets/splash_logo.png
+
+  android_12:
+    image: assets/splash_logo.png
+    icon_background_color: "#14004EFF"
+    image_dark: assets/splash_logo.png
+    icon_background_color_dark: "#14004EFF"
 
 # The following section is specific to Flutter packages.
 flutter:
@@ -93,6 +108,7 @@ flutter:
   assets:
      - assets/login_bg.png
      - assets/splash_logo.png
+     - assets/splash.jpg
      - assets/password_icon.png
      - assets/user_icon.png
      - assets/facebook.png

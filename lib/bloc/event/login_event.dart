@@ -29,6 +29,16 @@ class LoginWithOTPButtonPressed extends LoginEvent {
   List<Object> get props => [username, fcmToken];
 }
 
+class OTPResendButtonPressed extends LoginEvent {
+  final String userId;
+
+  const OTPResendButtonPressed(
+      {required this.userId});
+
+  @override
+  List<Object> get props => [userId];
+}
+
 class LoginOTPVerifyButtonPressed extends LoginEvent {
   final String user;
   final String otp;
@@ -51,14 +61,6 @@ class GetSocialLoginData extends LoginEvent {
   List<Object> get props => [emailId,socialId,name];
 }
 
-class GetUserProfileData extends LoginEvent {
-  final String parentId;
-
-  const GetUserProfileData({required this.parentId});
-
-  @override
-  List<Object> get props => [parentId];
-}
 
 class GetUserProfileDataUpdate extends LoginEvent {
   final String parentId;
@@ -71,20 +73,25 @@ class GetUserProfileDataUpdate extends LoginEvent {
   List<Object> get props => [parentId, profileData];
 }
 
-class GetChangePasswordButtonPressed extends LoginEvent {
-  final String parentId;
-  final String oldPassword;
-  final String newPassword;
-  final String confirmPassword;
+class GetForgotPasswordButtonPressed extends LoginEvent {
+  final String email;
 
-  const GetChangePasswordButtonPressed(
-      {required this.oldPassword,
-      required this.parentId,
-      required this.newPassword,
-      required this.confirmPassword});
+  const GetForgotPasswordButtonPressed(
+      {required this.email});
 
   @override
-  List<Object> get props => [oldPassword, newPassword, confirmPassword];
+  List<Object> get props => [email];
+}
+class GetChangePasswordButtonPressed extends LoginEvent {
+  final String password;
+  final String confirmPassword;
+  final String token;
+
+  const GetChangePasswordButtonPressed(
+      {required this.password,required this.confirmPassword,required this.token});
+
+  @override
+  List<Object> get props => [password,confirmPassword,token];
 }
 
 class LogoutButtonPressed extends LoginEvent {}

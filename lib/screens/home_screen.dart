@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'package:bottom_bar_matu/bottom_bar/bottom_bar_bubble.dart';
-import 'package:bottom_bar_matu/bottom_bar_item.dart';
-import 'package:easy_localization/easy_localization.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,8 +9,10 @@ import 'package:go_router/go_router.dart';
 import 'package:hap_winner_project/data/api/api_constants.dart';
 import 'package:hap_winner_project/model/TestimonialModel.dart';
 import 'package:hap_winner_project/utils/extensions/extensions.dart';
+import 'package:hap_winner_project/utils/toast.dart';
 import 'package:hap_winner_project/widgets/ProfilePageWidget.dart';
 import 'package:hap_winner_project/widgets/TestimonialWidget.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -55,6 +55,7 @@ class HomePageState extends State<HomePage> {
   bool index2 = false;
   bool index3 = false;
   bool index4 = false;
+  bool switchScreen = false;
   final List<String> _videoUrlList = [];
   final List<String> nameList = [];
   final List<Testimonial> videoList = [];
@@ -65,6 +66,7 @@ class HomePageState extends State<HomePage> {
   String lotteryName = "";
   String bannerImage = "";
   String previousBannerImage = "";
+  String userAddress = "";
   String lotteryPrice = "";
   Map<String, dynamic> cStates = {};
   String month = "";
@@ -72,6 +74,11 @@ class HomePageState extends State<HomePage> {
 
   late Timer _timer;
   Duration _difference = Duration.zero;
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -109,6 +116,24 @@ class HomePageState extends State<HomePage> {
     });
   }
 
+  deleteAccount(dynamic data) {
+    if (data['status'] == 401) {
+      toast("Account not deleted, Please try again", true);
+    } else {
+      if (data['status'] == 200) {
+        if (!switchScreen) {
+          toast("Account deleted successfully", false);
+          SharedPrefs().setIsLogin(false);
+          SharedPrefs().reset();
+          Future.delayed(Duration.zero, () {
+            context.go(Routes.signIn);
+          });
+          switchScreen = true;
+        }
+      }
+    }
+  }
+
   setHomeData(dynamic homaData) {
     // if (kDebugMode) {
     //   print("homaData--$homaData");
@@ -136,6 +161,7 @@ class HomePageState extends State<HomePage> {
     if (previousMonthWinnerList.isNotEmpty) {
       previousBannerImage =
           previousMonthWinnerList[0].lotteryDetail.bannerImage.toString();
+      // userAddress = previousMonthWinnerList[0].lotteryDetail.bannerImage.toString();
     }
 
     /* for(int i=0;i<previousMonthWinners.length;i++) {
@@ -213,7 +239,6 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-
   Future<void> initializePreference() async {
     SharedPrefs.init(await SharedPreferences.getInstance());
   }
@@ -232,6 +257,7 @@ class HomePageState extends State<HomePage> {
                 backgroundColor: Colors.white,
                 child: DrawerWidget(
                   contexts: context,
+                  homeBloc: homeBloc,
                 ),
               ), //Drawer
             ),
@@ -278,6 +304,10 @@ class HomePageState extends State<HomePage> {
                               setHomeData(state.response);
 
                               return buildHomeContainer(context, mq, false);
+                            } else if (state is GetAccountDeleteSuccessState) {
+                              deleteAccount(state.response);
+
+                              return buildHomeContainer(context, mq, false);
                             } else if (state is GetTestimonialsState) {
                               setTestimonialVideoData(state.response);
 
@@ -300,7 +330,11 @@ class HomePageState extends State<HomePage> {
                               return buildWinnerContainer(context, mq, true);
                             } else if (state is GetTestimonialsState) {
                               return buildWinnerContainer(context, mq, false);
-                            } else if (state is FailureState) {
+                            } else if (state is GetAccountDeleteSuccessState) {
+                              deleteAccount(state.response);
+
+                              return buildHomeContainer(context, mq, false);
+                            }else if (state is FailureState) {
                               return Center(
                                 child: Text('Error: ${state.error}'),
                               );
@@ -322,6 +356,10 @@ class HomePageState extends State<HomePage> {
 
                               return buildTestimonialContainer(
                                   context, mq, false);
+                            }else if (state is GetAccountDeleteSuccessState) {
+                              deleteAccount(state.response);
+
+                              return buildHomeContainer(context, mq, false);
                             } else if (state is FailureState) {
                               return Center(
                                 child: Text('Error: ${state.error}'),
@@ -341,7 +379,11 @@ class HomePageState extends State<HomePage> {
                               return buildProfileContainer(context, mq, true);
                             } else if (state is GetTestimonialsState) {
                               return buildProfileContainer(context, mq, false);
-                            } else if (state is FailureState) {
+                            } else if (state is GetAccountDeleteSuccessState) {
+                              deleteAccount(state.response);
+
+                              return buildHomeContainer(context, mq, false);
+                            }else if (state is FailureState) {
                               return Center(
                                 child: Text('Error: ${state.error}'),
                               );
@@ -659,15 +701,6 @@ class HomePageState extends State<HomePage> {
                           ),
                         ),
                         child: Row(children: [
-                          ClipRRect(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(20)),
-                            child: Image.asset(
-                              "assets/testimonial.png",
-                              scale: 7,
-                            ),
-                          ),
-                          20.width,
                           Text(
                             nameList[index].toString(),
                             style: textStyle(
@@ -704,43 +737,30 @@ class HomePageState extends State<HomePage> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Stack(children: [
-          SizedBox(
-            width: mq.width,
-            child: Image.asset("assets/home_imge.jpg"),
+          InkWell(
+            onTap: () {
+              Future.delayed(Duration.zero, () {
+                context.push(Routes.contestDetail);
+              });
+            },
+            child: SizedBox(
+              width: mq.width,
+              child: Image.asset("assets/home_imge.jpg"),
+            ),
           ),
-/*          Container(
+          InkWell(
+            onTap: () {
+              Future.delayed(Duration.zero, () {
+                context.push(Routes.contestDetail);
+              });
+            },
+            child: Container(
               margin: const EdgeInsets.only(top: 50),
               alignment: Alignment.bottomRight,
               child: Image.network(
                 ApiConstants.baseUrlAssets + bannerImage,
-                scale: 3,
-                fit: BoxFit.fill,
-                loadingBuilder: (BuildContext context, Widget child,
-                    ImageChunkEvent? loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Center(
-                    child: Container(
-                      margin: const EdgeInsets.only(left: 50),
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.all(5),
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                            loadingProgress.expectedTotalBytes!
-                            : null,
-                        valueColor:
-                        const AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    ),
-                  );
-                },
-              ))*/
-          Container(
-            margin: const EdgeInsets.only(top: 50),
-            alignment: Alignment.bottomRight,
-            child: Image.network(
-              ApiConstants.baseUrlAssets + bannerImage,
-              scale: 4,
+                scale: 4,
+              ),
             ),
           ),
           Container(
@@ -1187,22 +1207,28 @@ class HomePageState extends State<HomePage> {
             ),
           ),
           15.height,
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            decoration: kGradientBoxDecoration,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  alignment: Alignment.centerLeft,
-                  height: 50,
-                  child: Text(
-                    "Delete Account",
-                    style: textStyle(Colors.white, 22, 0, FontWeight.normal),
+          InkWell(
+            onTap: () {
+              showDeleteAccountAlertDialog(context, "Delete Account",
+                  "Are you sure to delete account permanently?"); // Navigator.pop(context);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: kGradientBoxDecoration,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    height: 50,
+                    child: Text(
+                      "Delete Account",
+                      style: textStyle(Colors.white, 22, 0, FontWeight.normal),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 50, child: Icon(Icons.arrow_forward)),
-              ],
+                  const SizedBox(height: 50, child: Icon(Icons.arrow_forward)),
+                ],
+              ),
             ),
           ),
           15.height,
@@ -1235,6 +1261,54 @@ class HomePageState extends State<HomePage> {
           )
         ],
       ),
+    );
+  }
+
+  showDeleteAccountAlertDialog(
+    BuildContext context,
+    String title,
+    String msg,
+  ) {
+    // set up the button
+    Widget okButton = TextButton(
+      child: const Text("Yes"),
+      onPressed: () {
+        switchScreen = false;
+
+        Navigator.of(context, rootNavigator: true).pop();
+        homeBloc.add(
+            GetDeleteAccountData(id: SharedPrefs().getStudentId().toString()));
+      },
+    );
+    Widget cancelButton = TextButton(
+      child: const Text("Cancel"),
+      onPressed: () {
+        //Navigator.pop(contexts);
+
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title:
+          Text(title, style: textStyle(Colors.black, 14, 0, FontWeight.normal)),
+      content: Text(
+        msg,
+        style: textStyle(Colors.black, 14, 0, FontWeight.normal),
+      ),
+      actions: [
+        cancelButton,
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
     );
   }
 }

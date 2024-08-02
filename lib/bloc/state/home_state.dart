@@ -27,40 +27,16 @@ class GetTestimonialsState extends HomeState {
   const GetTestimonialsState(this.response);
 }
 
-class GetOfficeBookingSuccessState extends HomeState {
+class GetContestDetailState extends HomeState {
   final dynamic response;
 
-  const GetOfficeBookingSuccessState(this.response);
+  const GetContestDetailState(this.response);
 }
-class GetOfficeBookedSuccessState extends HomeState {
+class GetAccountDeleteSuccessState extends HomeState {
   final dynamic response;
 
-  const GetOfficeBookedSuccessState(this.response);
-}
-class GetDeleteOfficeBookedSuccessState extends HomeState {
-  final dynamic response;
-
-  const GetDeleteOfficeBookedSuccessState(this.response);
+  const GetAccountDeleteSuccessState(this.response);
 }
 
-class GetTeacherSlotState extends HomeState {
-  final dynamic response;
 
-  const GetTeacherSlotState(this.response);
-}
 
-class GetTeacherBookingSuccessState extends HomeState {
-  final dynamic response;
-
-  const GetTeacherBookingSuccessState(this.response);
-}
-class GetTeacherBookedSuccessState extends HomeState {
-  final dynamic response;
-
-  const GetTeacherBookedSuccessState(this.response);
-}
-class GetDeleteTeacherBookingState extends HomeState {
-  final dynamic response;
-
-  const GetDeleteTeacherBookingState(this.response);
-}

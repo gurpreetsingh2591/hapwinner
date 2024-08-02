@@ -36,10 +36,10 @@ class CustomToastWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text(
+              Flexible(child: Text(
                msg,
                 style: textStyle(Colors.white, 14, 0.5, FontWeight.w400),
-              ),
+              ),),
               Text(
                 email,
                 style: textStyle(Colors.white, 14, 0.5, FontWeight.w400),

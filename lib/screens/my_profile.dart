@@ -15,6 +15,7 @@ import 'package:provider/provider.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../app/router.dart';
 import '../bloc/logic_bloc/buy_ticket_bloc.dart';
 import '../bloc/logic_bloc/my_profile_bloc.dart';
 import '../bloc/logic_bloc/my_ticket_bloc.dart';
@@ -639,10 +640,16 @@ class MyProfileState extends State<MyProfilePage> {
               "Change Password",
               style: textStyle(Colors.white, 22, 0, FontWeight.w500),
             ),
-            const Icon(
+            InkWell(
+                onTap: () {
+                  Future.delayed(Duration.zero, () {
+                    context.push(Routes.changePassword);
+                  });
+                },
+                child: const Icon(
               Icons.edit,
               size: 18,
-            ),
+            ),),
           ]),
           40.height,
           Container(
@@ -680,4 +687,5 @@ class MyProfileState extends State<MyProfilePage> {
       ),
     );
   }
+
 }
