@@ -321,6 +321,7 @@ class MyProfileState extends State<MyProfilePage> {
                     child: Container(
                         margin: const EdgeInsets.only(left: 10),
                         child: CommonTextField(
+                            height: 50,
                             controller: _nameText,
                             hintText: "Name",
                             text: SharedPrefs().getUserEmail().toString(),
@@ -360,6 +361,7 @@ class MyProfileState extends State<MyProfilePage> {
                             margin: const EdgeInsets.only(left: 10),
                             child: CommonTextField(
                               controller: _dobText,
+                              height: 50,
                               hintText: "DOB",
                               text: SharedPrefs().getUserEmail().toString(),
                               isFocused: false,
@@ -394,6 +396,7 @@ class MyProfileState extends State<MyProfilePage> {
                     child: Container(
                         margin: const EdgeInsets.only(left: 10),
                         child: CommonTextField(
+                            height: 50,
                             controller: _emailText,
                             hintText: "Email",
                             text: SharedPrefs().getUserEmail().toString(),
@@ -475,6 +478,7 @@ class MyProfileState extends State<MyProfilePage> {
                     child: Container(
                         margin: const EdgeInsets.only(left: 10),
                         child: CommonTextField(
+                            height: 50,
                             controller: _addressText,
                             hintText: "Address",
                             text: "",
@@ -509,6 +513,7 @@ class MyProfileState extends State<MyProfilePage> {
                     child: Container(
                         margin: const EdgeInsets.only(left: 10),
                         child: CommonTextField(
+                            height: 50,
                             controller: _cityText,
                             hintText: "City",
                             text: SharedPrefs().getUserEmail().toString(),
@@ -543,6 +548,7 @@ class MyProfileState extends State<MyProfilePage> {
                     child: Container(
                         margin: const EdgeInsets.only(left: 10),
                         child: CommonTextField(
+                            height: 50,
                             controller: _stateText,
                             hintText: "State",
                             text: SharedPrefs().getUserEmail().toString(),
@@ -578,6 +584,7 @@ class MyProfileState extends State<MyProfilePage> {
                     child: Container(
                         margin: const EdgeInsets.only(left: 10),
                         child: CommonTextField(
+                            height: 50,
                             controller: _countryText,
                             hintText: "Country",
                             text: SharedPrefs().getUserEmail().toString(),

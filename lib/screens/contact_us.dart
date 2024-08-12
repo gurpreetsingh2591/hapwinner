@@ -258,7 +258,7 @@ class ContactUsState extends State<ContactUsPage> {
                   decoration: kEditTextDecoration,
                   padding: 10,
                   leftIcon: false,
-                  enable: true,
+                  enable: true, height: 50,
                 ),
                 15.height,
                 Row(
@@ -295,7 +295,7 @@ class ContactUsState extends State<ContactUsPage> {
                   decoration: kEditTextDecoration,
                   padding: 10,
                   leftIcon: false,
-                  enable: true,
+                  enable: true, height: 50,
                 ),
                 15.height,
                 Row(
@@ -332,7 +332,7 @@ class ContactUsState extends State<ContactUsPage> {
                   decoration: kEditTextDecoration,
                   padding: 10,
                   leftIcon: false,
-                  enable: true,
+                  enable: true, height: 50,
                 ),
                 15.height,
                 Row(

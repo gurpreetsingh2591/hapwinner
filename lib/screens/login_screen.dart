@@ -459,6 +459,7 @@ class LoginPageState extends State<LoginPage> {
             hintText: "Email/Mobile",
             text: "",
             isFocused: false,
+            height: 50,
             textColor: Colors.black,
             focus: _emailFocus,
             textSize: 16,

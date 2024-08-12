@@ -274,7 +274,7 @@ class ForgotPasswordState extends State<ForgotPasswordPage> {
             decoration: kEditTextDecoration,
             padding: 0,
             leftIcon: true,
-            enable: true,
+            enable: true, height: 50,
           ),
           30.height,
           Container(

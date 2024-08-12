@@ -66,6 +66,7 @@ class SignUpWithEmailState extends State<SignUpWithEmailPage> {
     'profile',
   ]);
   final loginBloc = LoginBloc();
+
   @override
   void initState() {
     super.initState();
@@ -213,7 +214,8 @@ class SignUpWithEmailState extends State<SignUpWithEmailPage> {
 
   userDataAPI(dynamic loginSuccess, bool isSocial) {
     if (loginSuccess['status'] == 401 && !dialogShown) {
-      toast("Already Registered , Please try with another email/mobile ", false);
+      toast(
+          "Already Registered , Please try with another email/mobile ", false);
 
       Future.delayed(Duration.zero, () {
         dialogShown = true;
@@ -387,21 +389,22 @@ class SignUpWithEmailState extends State<SignUpWithEmailPage> {
               ),*/
               20.height,
               CommonTextField(
-                controller: _emailText,
-                hintText: "Email/Mobile Number".allInCaps,
-                text: "",
-                isFocused: false,
-                textColor: Colors.black,
-                focus: _emailFocus,
-                textSize: 16,
-                weight: FontWeight.w400,
-                hintColor: Colors.black26,
-                error: emailError,
-                wrongError: wrongError,
-                decoration: kEditTextDecoration,
-                padding: 0,
-                leftIcon: true, enable: true
-              ),
+                  height: 50,
+                  controller: _emailText,
+                  hintText: "Email/Mobile Number".allInCaps,
+                  text: "",
+                  isFocused: false,
+                  textColor: Colors.black,
+                  focus: _emailFocus,
+                  textSize: 16,
+                  weight: FontWeight.w400,
+                  hintColor: Colors.black26,
+                  error: emailError,
+                  wrongError: wrongError,
+                  decoration: kEditTextDecoration,
+                  padding: 0,
+                  leftIcon: true,
+                  enable: true),
               20.height,
 /*              Stack(children: [
                 CommonPasswordTextField(

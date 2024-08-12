@@ -18,6 +18,7 @@ class ApiConstants {
   static String apiTicketList = "ticket_list";
   static String apiMyTicket = "myticket";
   static String apiBuyTicket = "tickets";
+  static String apiRedeemCoupon = "couponcode";
   static String apiMyWinTicket = "mywins";
   static String apiMyPastTicket = "usertickets";
   static String apiSignupSocial = "signupsocial";
@@ -59,6 +60,8 @@ class ApiConstants {
   static String facebookId="facebookId";
   static String socialId="social_id";
   static String id="id";
+  static String price="price";
+  static String couponCode="couponcode";
 
   static String studentId="student_id=";
   static String subjectId="&subjectid=";

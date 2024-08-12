@@ -34,6 +34,7 @@ class SharedPrefs {
       _userCountry = '_userCountry',
       _userPinCode = '_userPinCode',
       _userAddress = '_userAddress',
+      _gst = 'gst',
       _userCity = '_userCity';
 
   ///* User SignIn/SignUp Detail*/
@@ -88,6 +89,12 @@ class SharedPrefs {
   Future<bool> removeUserPhone() => _prefs!.remove(_userPhone);
 
   String? getUserPhone() => _prefs!.getString(_userPhone);
+
+  Future<bool> setGST(String gst) =>
+      _prefs!.setString(_gst, gst);
+
+
+  String? getGST() => _prefs!.getString(_gst);
 
   ///------
 

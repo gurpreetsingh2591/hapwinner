@@ -19,6 +19,7 @@ class CommonTextField extends StatelessWidget {
   final bool enable;
   final BoxDecoration decoration;
   final double padding;
+  final double height;
 
   const CommonTextField({
     Key? key,
@@ -37,14 +38,14 @@ class CommonTextField extends StatelessWidget {
     required this.decoration,
     required this.padding,
     required this.leftIcon,
-    required this.enable,
+    required this.enable, required this.height,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        height: 50,
+        height: height,
 
         // You can adjust the width and decoration as needed
         decoration: decoration,

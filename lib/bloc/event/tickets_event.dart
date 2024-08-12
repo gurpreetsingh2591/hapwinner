@@ -45,6 +45,17 @@ class GetMyWinTicketListData extends TicketsEvent {
   @override
   List<Object> get props => [token];
 }
+///Get Redeem Coupon
+class GetRedeemCouponData extends TicketsEvent {
+  final String couponCode;
+  final String price;
+  final String token;
+
+  const GetRedeemCouponData({required this.couponCode,required this.price,required this.token});
+
+  @override
+  List<Object> get props => [couponCode,price,token];
+}
 
 ///Get Buy Tickets
 class GetBuyTicketsData extends TicketsEvent {

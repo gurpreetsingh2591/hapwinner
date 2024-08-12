@@ -10,6 +10,7 @@ class BuyTicketBloc extends Bloc<TicketsEvent, CommonState> {
     on<GetTicketListData>(_onGetTicketListData);
     on<GetBuyTicketsData>(_onGetBuyTicketsData);
     on<GetMyWinTicketListData>(_onGetMyWinTicketListData);
+    on<GetRedeemCouponData>(_onGetRedeemCouponData);
   }
 
   Future<void> _onGetTicketListData(
@@ -44,6 +45,25 @@ class BuyTicketBloc extends Bloc<TicketsEvent, CommonState> {
         print(getUserData);
       }
       emit(SuccessState(getUserData));
+    } catch (error) {
+      // Emit a failure state
+      emit(FailureState(error.toString()));
+    }
+  }
+
+  Future<void> _onGetRedeemCouponData(
+      GetRedeemCouponData event, Emitter<CommonState> emit) async {
+    // Handle the Get User Data event
+    emit(LoadingState());
+
+    try {
+      dynamic getUserData = await ApiService().getRedeemCoupon(event.couponCode,event.price,event.token);
+      // Process the API response
+      // Emit a success state
+      if (kDebugMode) {
+        print(getUserData);
+      }
+      emit(SuccessRedeemCouponState(getUserData));
     } catch (error) {
       // Emit a failure state
       emit(FailureState(error.toString()));

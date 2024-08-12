@@ -334,7 +334,7 @@ class HomePageState extends State<HomePage> {
                               deleteAccount(state.response);
 
                               return buildHomeContainer(context, mq, false);
-                            }else if (state is FailureState) {
+                            } else if (state is FailureState) {
                               return Center(
                                 child: Text('Error: ${state.error}'),
                               );
@@ -356,7 +356,7 @@ class HomePageState extends State<HomePage> {
 
                               return buildTestimonialContainer(
                                   context, mq, false);
-                            }else if (state is GetAccountDeleteSuccessState) {
+                            } else if (state is GetAccountDeleteSuccessState) {
                               deleteAccount(state.response);
 
                               return buildHomeContainer(context, mq, false);
@@ -383,7 +383,7 @@ class HomePageState extends State<HomePage> {
                               deleteAccount(state.response);
 
                               return buildHomeContainer(context, mq, false);
-                            }else if (state is FailureState) {
+                            } else if (state is FailureState) {
                               return Center(
                                 child: Text('Error: ${state.error}'),
                               );
@@ -829,6 +829,17 @@ class HomePageState extends State<HomePage> {
                 ]),
           )
         ]),
+        20.height,
+        Container(
+          padding:const EdgeInsets.symmetric(horizontal: 20),child:Row(mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+          Image.asset(
+            "assets/new_offer.png",
+            scale: 10,
+          ),
+          10.width,
+          const Text("Buy 10 Tickets get 20% discount",style: TextStyle(color: Colors.black,fontSize: 16),)
+        ]),),
         Container(
           margin: const EdgeInsets.all(20),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),

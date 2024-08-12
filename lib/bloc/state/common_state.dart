@@ -21,6 +21,11 @@ class SuccessState extends CommonState {
 
   const SuccessState(this.response);
 }
+class SuccessRedeemCouponState extends CommonState {
+  final dynamic response;
+
+  const SuccessRedeemCouponState(this.response);
+}
 class LoginWithOTPSuccessState extends CommonState {
   final dynamic response;
 
